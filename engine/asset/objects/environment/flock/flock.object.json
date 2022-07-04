@@ -1,0 +1,64 @@
+{
+    "components": [
+        {
+            "$context": {
+                "transform": {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0,
+                        "w": 1
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    }
+                }
+            },
+            "$typeName": "TransformComponent"
+        },
+        {
+            "$context": {
+                "flock_res": {
+                    "transform": {
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "w": 1
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        }
+                    },
+                    "name" : "simple_flock",
+                    "min_pos" : {
+                        "x" : 0,
+                        "y" : 0,
+                        "z" : 0
+                    },
+                    "max_pos" : {
+                        "x" : 1,
+                        "y" : 1,
+                        "z" : 1
+                    },
+                    "count" : 100
+                }
+            },
+            "$typeName": "FlockComponent"
+        }
+    ]
+}
