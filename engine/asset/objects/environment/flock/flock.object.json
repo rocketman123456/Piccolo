@@ -44,18 +44,48 @@
                             "z": 1
                         }
                     },
-                    "name" : "simple_flock",
-                    "min_pos" : {
-                        "x" : 0,
-                        "y" : 0,
-                        "z" : 0
+                    "name": "simple_flock",
+                    "min_pos": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
                     },
-                    "max_pos" : {
-                        "x" : 1,
-                        "y" : 1,
-                        "z" : 1
+                    "max_pos": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
                     },
-                    "count" : 100
+                    "count": 100
+                },
+                "mesh_res": {
+                    "sub_meshes": [
+                        {
+                            "material": "asset/objects/environment/_material/white.material.json",
+                            "obj_file_ref": "asset/objects/environment/flock/components/mesh/flock.obj",
+                            "transform": {
+                                "position": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "rotation": {
+                                    "w": 1,
+                                    "x": 0,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                "scale": {
+                                    "x": 0.1,
+                                    "y": 0.1,
+                                    "z": 0.1
+                                }
+                            }
+                        }
+                    ]
+                },
+                "mesh_instances": {
+                    "sub_meshes": [
+                    ]
                 }
             },
             "$typeName": "FlockComponent"

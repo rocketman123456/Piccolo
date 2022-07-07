@@ -61,5 +61,4 @@ namespace Piccolo
             rigid_body_component->updateGlobalTransform(m_transform_buffer[m_current_index]);
         }
     }
-
 } // namespace Piccolo
