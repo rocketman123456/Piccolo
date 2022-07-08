@@ -4,6 +4,8 @@
 #include "runtime/function/render/render_pass.h"
 #include "runtime/function/render/render_resource.h"
 
+#include "runtime/core/profile/instrumentor.h"
+
 namespace Piccolo
 {
     void RenderScene::updateVisibleObjects(std::shared_ptr<RenderResource> render_resource,
@@ -86,6 +88,8 @@ namespace Piccolo
     void RenderScene::updateVisibleObjectsDirectionalLight(std::shared_ptr<RenderResource> render_resource,
                                                            std::shared_ptr<RenderCamera>   camera)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         glm::mat4 directional_light_proj_view = CalculateDirectionalLightCamera(*this, *camera);
 
         render_resource->m_mesh_perframe_storage_buffer_object.directional_light_proj_view =
@@ -130,6 +134,8 @@ namespace Piccolo
 
     void RenderScene::updateVisibleObjectsPointLight(std::shared_ptr<RenderResource> render_resource)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         m_point_lights_visible_mesh_nodes.clear();
 
         std::vector<BoundingSphere> point_lights_bounding_spheres;
@@ -185,6 +191,8 @@ namespace Piccolo
     void RenderScene::updateVisibleObjectsMainCamera(std::shared_ptr<RenderResource> render_resource,
                                                      std::shared_ptr<RenderCamera>   camera)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         m_main_camera_visible_mesh_nodes.clear();
 
         Matrix4x4 view_matrix      = camera->getViewMatrix();
@@ -226,6 +234,8 @@ namespace Piccolo
 
     void RenderScene::updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         if (m_render_axis.has_value())
         {
             RenderEntity& axis = *m_render_axis;
@@ -241,6 +251,7 @@ namespace Piccolo
 
     void RenderScene::updateVisibleObjectsParticle(std::shared_ptr<RenderResource> render_resource)
     {
+        PICCOLO_PROFILE_FUNCTION();
         // TODO
         m_main_camera_visible_particlebillboard_nodes.clear();
     }

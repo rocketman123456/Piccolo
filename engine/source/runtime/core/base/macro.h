@@ -2,6 +2,8 @@
 
 #include "runtime/core/log/log_system.h"
 
+#include "runtime/core/profile/instrumentor.h"
+
 #include "runtime/function/global/global_context.h"
 
 #include <chrono>

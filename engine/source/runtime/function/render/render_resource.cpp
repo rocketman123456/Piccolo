@@ -112,6 +112,8 @@ namespace Piccolo
     void RenderResource::updatePerFrameBuffer(std::shared_ptr<RenderScene>  render_scene,
                                               std::shared_ptr<RenderCamera> camera)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         Matrix4x4 view_matrix      = camera->getViewMatrix();
         Matrix4x4 proj_matrix      = camera->getPersProjMatrix();
         Vector3   camera_position  = camera->position();

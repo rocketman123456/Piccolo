@@ -10,6 +10,8 @@
 
 #include "_generated/serializer/all_serializer.h"
 
+#include "runtime/core/profile/instrumentor.h"
+
 namespace Piccolo
 {
     WorldManager::~WorldManager() { clear(); }
@@ -39,6 +41,7 @@ namespace Piccolo
 
     void WorldManager::tick(float delta_time)
     {
+        PICCOLO_PROFILE_FUNCTION();
         if (!m_is_world_loaded)
         {
             loadWorld(m_current_world_url);

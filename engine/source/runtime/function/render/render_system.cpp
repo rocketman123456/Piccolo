@@ -17,12 +17,16 @@
 
 #include "runtime/function/render/rhi/vulkan/vulkan_rhi.h"
 
+#include "runtime/core/profile/instrumentor.h"
+
 namespace Piccolo
 {
     RenderSystem::~RenderSystem() {}
 
     void RenderSystem::initialize(RenderSystemInitInfo init_info)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         std::shared_ptr<ConfigManager> config_manager = g_runtime_global_context.m_config_manager;
         ASSERT(config_manager);
         std::shared_ptr<AssetManager> asset_manager = g_runtime_global_context.m_asset_manager;
@@ -90,6 +94,8 @@ namespace Piccolo
 
     void RenderSystem::tick()
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         // process swap data between logic and render contexts
         processSwapData();
 
@@ -209,6 +215,8 @@ namespace Piccolo
 
     void RenderSystem::processSwapData()
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         RenderSwapData& swap_data = m_swap_context.getRenderSwapData();
 
         std::shared_ptr<AssetManager> asset_manager = g_runtime_global_context.m_asset_manager;

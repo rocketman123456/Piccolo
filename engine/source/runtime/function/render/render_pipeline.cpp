@@ -16,6 +16,8 @@ namespace Piccolo
 {
     void RenderPipeline::initialize(RenderPipelineInitInfo init_info)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         m_point_light_shadow_pass = std::make_shared<PointLightShadowPass>();
         m_directional_light_pass  = std::make_shared<DirectionalLightShadowPass>();
         m_main_camera_pass        = std::make_shared<MainCameraPass>();
@@ -101,6 +103,8 @@ namespace Piccolo
 
     void RenderPipeline::forwardRender(std::shared_ptr<RHI> rhi, std::shared_ptr<RenderResourceBase> render_resource)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         VulkanRHI*      vulkan_rhi      = static_cast<VulkanRHI*>(rhi.get());
         RenderResource* vulkan_resource = static_cast<RenderResource*>(render_resource.get());
 
@@ -140,6 +144,8 @@ namespace Piccolo
 
     void RenderPipeline::deferredRender(std::shared_ptr<RHI> rhi, std::shared_ptr<RenderResourceBase> render_resource)
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         VulkanRHI*      vulkan_rhi      = static_cast<VulkanRHI*>(rhi.get());
         RenderResource* vulkan_resource = static_cast<RenderResource*>(render_resource.get());
 
@@ -179,6 +185,8 @@ namespace Piccolo
 
     void RenderPipeline::passUpdateAfterRecreateSwapchain()
     {
+        PICCOLO_PROFILE_FUNCTION();
+
         MainCameraPass&   main_camera_pass   = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
         ColorGradingPass& color_grading_pass = *(static_cast<ColorGradingPass*>(m_color_grading_pass.get()));
         FXAAPass&         fxaa_pass          = *(static_cast<FXAAPass*>(m_fxaa_pass.get()));
@@ -198,6 +206,7 @@ namespace Piccolo
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
         pick_pass.recreateFramebuffer();
     }
+
     uint32_t RenderPipeline::getGuidOfPickedMesh(const Vector2& picked_uv)
     {
         PickPass& pick_pass = *(static_cast<PickPass*>(m_pick_pass.get()));
