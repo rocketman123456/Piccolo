@@ -11,6 +11,7 @@
 #include "runtime/core/math/vector2.h"
 #include "runtime/core/math/vector3.h"
 #include "runtime/core/math/vector4.h"
+#include "runtime/core/math/parameter.h"
 
 namespace Piccolo
 {} // namespace Piccolo

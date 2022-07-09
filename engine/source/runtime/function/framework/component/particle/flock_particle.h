@@ -25,10 +25,10 @@ namespace Piccolo
         void flockIt(int flock_id, std::shared_ptr<Boid> first_boid, float deltaTime);
 
         void addToVisibleList(std::shared_ptr<Boid> ptr);
-        void clearVisibleList(void);
+        void clearVisibleList();
 
-        std::shared_ptr<Boid> getNext(void);
-        void                  linkOut(void);
+        std::shared_ptr<Boid> getNext();
+        void                  linkOut();
         void                  setNext(std::shared_ptr<Boid> ptr);
         void                  setPrev(std::shared_ptr<Boid> ptr);
 
@@ -37,22 +37,22 @@ namespace Piccolo
         // Generates a vector indicating how a flock boid would
         // like to move, if it were all up to him and he was under
         // no other influences of any kind.
-        Vector3 cruising(void);
+        Vector3 cruising();
 
         // FleeEnemies.
         // Generates a vector for a flock boid to avoid the
         // nearest enemy (boid of a different flock) it sees.
-        Vector3 fleeEnemies(void);
+        Vector3 fleeEnemies();
 
         // KeepDistance.
         // Generates a vector for a flock boid to maintain his
         // desired separation distance from the nearest flockmate he sees.
-        Vector3 keepDistance(void);
+        Vector3 keepDistance();
 
         // MatchHeading.
         // Generates a vector for a flock boid to try
         // to match the heading of its nearest flockmate.
-        Vector3 matchHeading(void);
+        Vector3 matchHeading();
 
         // SeeEnemies.
         // Determines which enemy flock boids a given flock boid can see.
@@ -65,7 +65,7 @@ namespace Piccolo
         // SteerToCenter.
         // Generates a vector to guide a flock boid towards
         // the "center of mass" of the flockmates he can see.
-        Vector3 steerToCenter(void);
+        Vector3 steerToCenter();
 
         // WorldBound.
         // Implements a world boundary so that flocks don't fly
@@ -73,7 +73,7 @@ namespace Piccolo
         // in a nice viewable area.  It does this by wrapping flock
         // boids around to the other side of the world, so (for example)
         // they move out the right and return on the left.
-        void worldBound(void);
+        void worldBound();
 
         //////////////////////////
         // miscellaneous functions
@@ -100,7 +100,7 @@ namespace Piccolo
         //   +x = through the left side of the object
         //   +y = up
         //   +z = through the nose of the model
-        void computeRPY(void);
+        void computeRPY();
 
     public:
         static std::list<std::shared_ptr<Boid>> s_visible_friends;

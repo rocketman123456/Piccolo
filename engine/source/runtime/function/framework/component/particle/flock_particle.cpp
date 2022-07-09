@@ -1,40 +1,24 @@
 #include "runtime/function/framework/component/particle/flock_particle.h"
 
-////////////////////////////////////////
-// default values for various attributes
-////////////////////////////////////////
+constexpr const float MaxSpeed = 1.0f;
+constexpr const float MinUrgency = 0.05f;
+constexpr const float MaxUrgency = 0.1f;
+constexpr const float MaxChange = (MaxSpeed * MaxUrgency);
+constexpr const float DesiredSpeed = (MaxSpeed / 2);
+constexpr const float KeepAwayDist = 6.0f;
+constexpr const float SeparationDist = 3.0f;
 
-#define MaxSpeed 1.0f
-#define MinUrgency 0.05f
-#define MaxUrgency 0.1f
-#define MaxChange (MaxSpeed * MaxUrgency)
-#define DesiredSpeed (MaxSpeed / 2)
-#define KeepAwayDist 6.0f
-#define SeparationDist 3.0f
+constexpr const int MaxBoids = 200;
+constexpr const int MaxFlocks = 4;
+constexpr const int Max_Friends_Visible = 10;
+constexpr const float Default_Perception_Range = 8.0f;
 
-#define MaxBoids 200
-#define MaxFlocks 4
-#define Max_Friends_Visible 10
-#define Default_Perception_Range 8.0f
+constexpr const bool UseTruth = false;
+constexpr const bool ReactToEnemies = true;
 
-#define UseTruth FALSE
-#define ReactToEnemies TRUE
+constexpr const float Gravity = 9.806650f;
 
-////////////
-// constants
-////////////
-
-#define TRUE 1
-#define FALSE 0
-
-#define PI 3.14159f
-#define HALF_PI (PI / 2)
-
-#define GRAVITY 9.806650f // meters/second
-
-#define INFINITY 999999.0f
-
-Piccolo::RandomNumberGenerator generator;
+Piccolo::RandomNumberGenerator flock_generator;
 
 namespace Piccolo
 {
@@ -48,25 +32,25 @@ namespace Piccolo
         m_perception_range = Default_Perception_Range;
 
         // generate random position
-        m_pos.x = generator.normalDistribution(0, 1) * (min_pos + max_pos).x / 2 / 3;
-        m_pos.y = generator.normalDistribution(0, 1) * (min_pos + max_pos).y / 2 / 3;
-        m_pos.z = generator.normalDistribution(0, 1) * (min_pos + max_pos).z / 2 / 3;
+        m_pos.x = flock_generator.normalDistribution(0, 1) * (min_pos + max_pos).x / 2 / 3;
+        m_pos.y = flock_generator.normalDistribution(0, 1) * (min_pos + max_pos).y / 2 / 3;
+        m_pos.z = flock_generator.normalDistribution(0, 1) * (min_pos + max_pos).z / 2 / 3;
 
         // flip positions for greater randomness
-        if (generator.normalDistribution(0, 1) > 0.5f)
+        if (flock_generator.normalDistribution(0, 1) > 0.5f)
             m_pos.x *= -1;
-        if (generator.normalDistribution(0, 1) > 0.5f)
+        if (flock_generator.normalDistribution(0, 1) > 0.5f)
             m_pos.y *= -1;
-        if (generator.normalDistribution(0, 1) > 0.5f)
+        if (flock_generator.normalDistribution(0, 1) > 0.5f)
             m_pos.z *= -1;
 
         // generate random velocity in x y plane
-        m_vel.x = generator.normalDistribution(0, 1);
-        m_vel.z = generator.normalDistribution(0, 1);
+        m_vel.x = flock_generator.normalDistribution(0, 1);
+        m_vel.z = flock_generator.normalDistribution(0, 1);
         // flip velocities for greater randomness
-        if (generator.normalDistribution(0, 1) > 0.5f)
+        if (flock_generator.normalDistribution(0, 1) > 0.5f)
             m_vel.x *= -1;
-        if (generator.normalDistribution(0, 1) > 0.5f)
+        if (flock_generator.normalDistribution(0, 1) > 0.5f)
             m_vel.z *= -1;
 
         // compute speed based on velocity
@@ -77,14 +61,14 @@ namespace Piccolo
 
         // init other values
         m_num_flockmates_seen       = 0;
-        m_nearest_flockmate         = NULL;
-        m_dist_to_nearest_flockmate = INFINITY;
+        m_nearest_flockmate         = nullptr;
+        m_dist_to_nearest_flockmate = std::numeric_limits<float>::max();
 
         m_num_enemies_seen      = 0;
-        m_nearest_enemy         = NULL;
-        m_dist_to_nearest_enemy = INFINITY;
+        m_nearest_enemy         = nullptr;
+        m_dist_to_nearest_enemy = std::numeric_limits<float>::max();
 
-        m_next = m_prev = NULL;
+        m_next = m_prev = nullptr;
     }
 
     Boid::Boid(int                    id,
@@ -107,17 +91,17 @@ namespace Piccolo
 
         // init other values
         m_num_flockmates_seen       = 0;
-        m_nearest_flockmate         = NULL;
-        m_dist_to_nearest_flockmate = INFINITY;
+        m_nearest_flockmate         = nullptr;
+        m_dist_to_nearest_flockmate = std::numeric_limits<float>::max();
 
         m_num_enemies_seen      = 0;
-        m_nearest_enemy         = NULL;
-        m_dist_to_nearest_enemy = INFINITY;
+        m_nearest_enemy         = nullptr;
+        m_dist_to_nearest_enemy = std::numeric_limits<float>::max();
 
-        m_next = m_prev = NULL;
+        m_next = m_prev = nullptr;
     }
 
-    Vector3 Boid::cruising(void)
+    Vector3 Boid::cruising()
     {
         Vector3 change = m_vel;
 
@@ -134,13 +118,13 @@ namespace Piccolo
         // bit of randomness just to keep things interesting.
         // This will also get us moving if we happen to start
         // things standing perfectly still (which is sorta boring).
-        float jitter = generator.normalDistribution(0, 1);
+        float jitter = flock_generator.normalDistribution(0, 1);
         if (jitter < 0.45f)
-            change.x += MinUrgency * diff > 0 ? 1 : -1;
+            change.x += MinUrgency * PICCOLO_SIGN(diff);
         else if (jitter < 0.90f)
-            change.z += MinUrgency * diff > 0 ? 1 : -1;
+            change.z += MinUrgency * PICCOLO_SIGN(diff);
         else
-            change.y += MinUrgency * diff > 0 ? 1 : -1; // we don't like vertical motion all that much
+            change.y += MinUrgency * PICCOLO_SIGN(diff); // we don't like vertical motion all that much
 
         // compute velocity change necessary to get to our desired cruising speed
         float change_length = (urgency * (diff > 0 ? -1 : 1));
@@ -222,8 +206,8 @@ namespace Piccolo
 
         // initialize enemy data
         m_num_enemies_seen      = 0;
-        m_nearest_enemy         = NULL;
-        m_dist_to_nearest_enemy = INFINITY;
+        m_nearest_enemy         = nullptr;
+        m_dist_to_nearest_enemy = std::numeric_limits<float>::max();
 
         // loop over each flock and determine the closest one we can see
         // for (int i = 0; i < Flock::s_count; i++)
@@ -239,9 +223,8 @@ namespace Piccolo
             while (enemy != NULL)
             {
                 // if this enemy is visible...
-                if ((dist = canISee(enemy)) != INFINITY)
+                if ((dist = canISee(enemy)) < std::numeric_limits<float>::max())
                 {
-
                     // I can see it..increment counter
                     m_num_enemies_seen++;
 
@@ -269,10 +252,10 @@ namespace Piccolo
         clearVisibleList();
 
         // now figure out who we can see
-        while (flockmate != NULL)
+        while (flockmate != nullptr)
         {
             // Test:  Within sight of this boid?
-            if ((dist = canISee(flockmate)) != INFINITY)
+            if ((dist = canISee(flockmate)) < std::numeric_limits<float>::max())
             {
                 // add it to the list
                 addToVisibleList(flockmate);
@@ -337,22 +320,19 @@ namespace Piccolo
     void Boid::clearVisibleList(void)
     {
         // walk down the list and clear each visible entry
-        for (auto& friends : s_visible_friends)
-        {
-            friends = nullptr;
-        }
+        s_visible_friends.clear();
 
         // clear other visibility info
         m_num_flockmates_seen       = 0;
-        m_nearest_flockmate         = NULL;
-        m_dist_to_nearest_flockmate = INFINITY;
+        m_nearest_flockmate         = nullptr;
+        m_dist_to_nearest_flockmate = std::numeric_limits<float>::max();
     }
 
     float Boid::canISee(std::shared_ptr<Boid> ptr)
     {
         // Test:  if we're looking at ourselves, never mind
         if (this == ptr.get())
-            return (INFINITY);
+            return std::numeric_limits<float>::max();
 
         // figure out distance
         Vector3 temp = m_pos - ptr->m_pos;
@@ -367,7 +347,7 @@ namespace Piccolo
             return (dist);
 
         // fell through; can't see it
-        return (INFINITY);
+        return std::numeric_limits<float>::max();
     }
 
     void Boid::computeRPY(void)
@@ -387,7 +367,7 @@ namespace Piccolo
         if (lateralMag == 0)
             roll = 0.0f;
         else
-            roll = (float)-atan2(GRAVITY, lateralMag) + HALF_PI;
+            roll = (float)-atan2(Gravity, lateralMag) + MATH_PI_2;
 
         // compute pitch
         pitch = (float)-atan(m_vel.y / sqrt((m_vel.z * m_vel.z) + (m_vel.x * m_vel.x)));
@@ -439,17 +419,14 @@ namespace Piccolo
         }
         else if (m_next == NULL)
         {
-
             m_prev->setNext(NULL);
         }
         else if (m_prev == NULL)
         {
-
             m_next->setPrev(NULL);
         }
         else
         {
-
             m_prev->setNext(m_next);
             m_next->setPrev(m_prev);
         }
