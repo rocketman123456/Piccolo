@@ -48,7 +48,6 @@ namespace Piccolo
 
     size_t EditorSceneManager::updateCursorOnAxis(Vector2 cursor_uv, Vector2 game_engine_window_size)
     {
-
         float   camera_fov     = m_camera->getFovYDeprecated();
         Vector3 camera_forward = m_camera->forward();
 
@@ -183,9 +182,7 @@ namespace Piccolo
                 return m_selected_axis;
             }
         }
-
         g_editor_global_context.m_render_system->setSelectedAxis(m_selected_axis);
-
         return m_selected_axis;
     }
 
