@@ -34,14 +34,12 @@ namespace Piccolo
     |             Output:
     |             -------
     |             An,   - Coordinates of the point on segment A that are nearest
-    |             An,     to segment B. This corresponds to point C in the text.
-    |             An
+    |                     to segment B. This corresponds to point C in the text.
     |             Bn,   - Coordinates of the point on segment B that are nearest
-    |             Bn,     to segment A. This corresponds to point D in the text.
-    |             Bn
+    |                     to segment A. This corresponds to point D in the text.
     |             Z,  - Midpoint between the two nearest points. This can be
-    |             Z,    treated as *the* intersection point if nearest points
-    |             Z     are sufficiently close. This corresponds to point P
+    |                   treated as *the* intersection point if nearest points
+    |                   are sufficiently close. This corresponds to point P
     |                               in the text.
     |             V, - Vector between the nearest point on A to the nearest
     |                               point on segment B. This vector is normal to both
@@ -74,7 +72,7 @@ namespace Piccolo
     |             ------
     |             A1   - Coordinates of first defining point of the line/segment
     |             L    - Vector from (A1x, A1y, A1z) to the second defining point
-    |                               of the line/segment.
+    |                    of the line/segment.
     |             B    - Coordinates of the point
     |             infinite_lines  - set to true if lines are to be treated as infinite
     |             epsilon_squared - tolerance value to be used to check for degenerate
@@ -83,8 +81,6 @@ namespace Piccolo
     |             Output:
     |             -------
     |             nearest,  - Point on line/segment that is closest to (Bx, By, Bz)
-    |             nearest,
-    |             nearest
     |             parameter       - Parametric coordinate of the nearest point along the
     |                               line/segment. parameter = 0 at (A1x, A1y, A1z) and
     |                               parameter = 1 at the second defining point of the line/
@@ -126,11 +122,9 @@ namespace Piccolo
     |             Output:
     |             -------
     |             An,   - Coordinates of the point on segment A that are nearest
-    |             An,     to segment B. This corresponds to point C in the text.
-    |             An
+    |                     to segment B. This corresponds to point C in the text.
     |             Bn,   - Coordinates of the point on segment B that are nearest
-    |             Bn,     to segment A. This corresponds to point D in the text.
-    |             Bn
+    |                     to segment A. This corresponds to point D in the text.
     **************************************************************************/
     void find_nearest_point_of_parallel_line_segments(const Vector3& A1,
                                                       const Vector3& A2,
@@ -164,11 +158,9 @@ namespace Piccolo
     |             Output:
     |             -------
     |             An,   - Coordinates of the point on segment A that are nearest
-    |             An,     to segment B. This corresponds to point C in the text.
-    |             An
+    |                     to segment B. This corresponds to point C in the text.
     |             Bn,   - Coordinates of the point on segment B that are nearest
-    |             Bn,     to segment A. This corresponds to point D in the text.
-    |             Bn
+    |                     to segment A. This corresponds to point D in the text.
     **************************************************************************/
     void adjust_nearest_points(const Vector3& A1,
                                const Vector3& La,

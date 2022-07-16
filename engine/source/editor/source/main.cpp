@@ -17,7 +17,6 @@
 int main(int argc, char** argv)
 {
     PICCOLO_PROFILE_BEGIN_SESSION("initialize", "initialize.json");
-
     std::filesystem::path executable_path(argv[0]);
     std::filesystem::path config_file_path = executable_path.parent_path() / "PiccoloEditor.ini";
 
@@ -28,7 +27,6 @@ int main(int argc, char** argv)
 
     Piccolo::PiccoloEditor* editor = new Piccolo::PiccoloEditor();
     editor->initialize(engine);
-
     PICCOLO_PROFILE_END_SESSION();
 
     PICCOLO_PROFILE_BEGIN_SESSION("tick", "tick.json");
@@ -36,12 +34,10 @@ int main(int argc, char** argv)
     PICCOLO_PROFILE_END_SESSION();
 
     PICCOLO_PROFILE_BEGIN_SESSION("clear", "clear.json");
-
     editor->clear();
 
     engine->clear();
     engine->shutdownEngine();
-
     PICCOLO_PROFILE_END_SESSION();
 
     return 0;

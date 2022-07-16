@@ -2,8 +2,8 @@
 #include "runtime/core/math/math_headers.h"
 
 #include <list>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace Piccolo
 {
@@ -159,4 +159,4 @@ namespace Piccolo
         int                              m_id;
         std::list<std::shared_ptr<Boid>> m_boids;
     };
-}
+} // namespace Piccolo

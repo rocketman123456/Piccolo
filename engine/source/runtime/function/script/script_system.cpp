@@ -2,5 +2,7 @@
 
 namespace Piccolo
 {
+    ScriptSystem::ScriptSystem() {}
 
+    ScriptSystem::~ScriptSystem() {}
 }

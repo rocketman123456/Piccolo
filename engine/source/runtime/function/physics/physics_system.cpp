@@ -6,6 +6,7 @@
 #include "runtime/function/physics/physics_shape_base.h"
 
 #include <algorithm>
+#include <limits>
 
 namespace Piccolo
 {
@@ -102,7 +103,7 @@ namespace Piccolo
         bool is_hit = false;
 
         Ray   ray(ray_start, ray_direction);
-        float distance = FLT_MAX;
+        float distance = std::numeric_limits<float>::max();
         for (int i = 0; i < m_physics_actors.size(); ++i)
         {
             RayCollision collision;

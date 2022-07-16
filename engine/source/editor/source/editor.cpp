@@ -20,6 +20,7 @@ namespace Piccolo
     PiccoloEditor::PiccoloEditor()
     {
         registerEdtorTickComponent("TransformComponent");
+        registerEdtorTickComponent("FlockComponent");
         registerEdtorTickComponent("MeshComponent");
     }
 

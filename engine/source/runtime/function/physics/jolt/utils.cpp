@@ -133,8 +133,7 @@ namespace Piccolo
             const Sphere* sphere_geometry = static_cast<const Sphere*>(shape.m_geometry.getPtr());
             if (sphere_geometry)
             {
-                jph_shape = new JPH::SphereShape((scale.x + scale.y + scale.z) / 3 *
-                                                 sphere_geometry->m_radius);
+                jph_shape = new JPH::SphereShape((scale.x + scale.y + scale.z) / 3 * sphere_geometry->m_radius);
             }
         }
         else if (shape_type_str == "Capsule")

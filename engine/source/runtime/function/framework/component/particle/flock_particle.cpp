@@ -1,19 +1,19 @@
 #include "runtime/function/framework/component/particle/flock_particle.h"
 
-constexpr const float MaxSpeed = 1.0f;
-constexpr const float MinUrgency = 0.05f;
-constexpr const float MaxUrgency = 0.1f;
-constexpr const float MaxChange = (MaxSpeed * MaxUrgency);
-constexpr const float DesiredSpeed = (MaxSpeed / 2);
-constexpr const float KeepAwayDist = 6.0f;
+constexpr const float MaxSpeed       = 1.0f;
+constexpr const float MinUrgency     = 0.05f;
+constexpr const float MaxUrgency     = 0.1f;
+constexpr const float MaxChange      = (MaxSpeed * MaxUrgency);
+constexpr const float DesiredSpeed   = (MaxSpeed / 2);
+constexpr const float KeepAwayDist   = 6.0f;
 constexpr const float SeparationDist = 3.0f;
 
-constexpr const int MaxBoids = 200;
-constexpr const int MaxFlocks = 4;
-constexpr const int Max_Friends_Visible = 10;
+constexpr const int   MaxBoids                 = 200;
+constexpr const int   MaxFlocks                = 4;
+constexpr const int   Max_Friends_Visible      = 10;
 constexpr const float Default_Perception_Range = 8.0f;
 
-constexpr const bool UseTruth = false;
+constexpr const bool UseTruth       = false;
 constexpr const bool ReactToEnemies = true;
 
 constexpr const float Gravity = 9.806650f;

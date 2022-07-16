@@ -32,14 +32,15 @@ namespace Piccolo
 {
     std::vector<std::pair<std::string, bool>> g_editor_node_state_array;
     int                                       g_node_depth = -1;
-    void                                      DrawVecControl(const std::string& label,
-                                                             Piccolo::Vector3&    values,
-                                                             float              resetValue  = 0.0f,
-                                                             float              columnWidth = 100.0f);
-    void                                      DrawVecControl(const std::string& label,
-                                                             Piccolo::Quaternion& values,
-                                                             float              resetValue  = 0.0f,
-                                                             float              columnWidth = 100.0f);
+
+    void DrawVecControl(const std::string& label,
+                        Piccolo::Vector3&  values,
+                        float              resetValue  = 0.0f,
+                        float              columnWidth = 100.0f);
+    void DrawVecControl(const std::string&   label,
+                        Piccolo::Quaternion& values,
+                        float                resetValue  = 0.0f,
+                        float                columnWidth = 100.0f);
 
     EditorUI::EditorUI()
     {
@@ -424,9 +425,10 @@ namespace Piccolo
                         if (item_ui_creator_iterator == m_editor_ui_creator.end())
                         {
                             m_editor_ui_creator["TreeNodePush"]("[" + std::to_string(index) + "]", nullptr);
-                            auto object_instance = Reflection::ReflectionInstance(
-                                Piccolo::Reflection::TypeMeta::newMetaFromName(item_type_meta_item.getTypeName().c_str()),
-                                array_accessor.get(index, field_instance));
+                            auto object_instance =
+                                Reflection::ReflectionInstance(Piccolo::Reflection::TypeMeta::newMetaFromName(
+                                                                   item_type_meta_item.getTypeName().c_str()),
+                                                               array_accessor.get(index, field_instance));
                             createClassUI(object_instance);
                             m_editor_ui_creator["TreeNodePop"]("[" + std::to_string(index) + "]", nullptr);
                         }
@@ -446,12 +448,10 @@ namespace Piccolo
             auto ui_creator_iterator = m_editor_ui_creator.find(field.getFieldTypeName());
             if (ui_creator_iterator == m_editor_ui_creator.end())
             {
-                Reflection::TypeMeta field_meta =
-                    Reflection::TypeMeta::newMetaFromName(field.getFieldTypeName());
+                Reflection::TypeMeta field_meta = Reflection::TypeMeta::newMetaFromName(field.getFieldTypeName());
                 if (field.getTypeMeta(field_meta))
                 {
-                    auto child_instance =
-                        Reflection::ReflectionInstance(field_meta, field.get(instance.m_instance));
+                    auto child_instance = Reflection::ReflectionInstance(field_meta, field.get(instance.m_instance));
                     m_editor_ui_creator["TreeNodePush"](field_meta.getTypeName(), nullptr);
                     createClassUI(child_instance);
                     m_editor_ui_creator["TreeNodePop"](field_meta.getTypeName(), nullptr);
@@ -462,14 +462,12 @@ namespace Piccolo
                     {
                         continue;
                     }
-                    m_editor_ui_creator[field.getFieldTypeName()](field.getFieldName(),
-                                                                         field.get(instance.m_instance));
+                    m_editor_ui_creator[field.getFieldTypeName()](field.getFieldName(), field.get(instance.m_instance));
                 }
             }
             else
             {
-                m_editor_ui_creator[field.getFieldTypeName()](field.getFieldName(),
-                                                                     field.get(instance.m_instance));
+                m_editor_ui_creator[field.getFieldTypeName()](field.getFieldName(), field.get(instance.m_instance));
             }
         }
         delete[] fields;

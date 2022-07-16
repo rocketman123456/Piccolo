@@ -27,6 +27,7 @@ namespace Piccolo
         META(Enable)
         BasicFlockRes m_flock_res;
 
+        // TODO : find mesh component in same go, and update mesh transform
         // META(Enable)
         // MeshComponentRes m_mesh_res;
 

@@ -26,10 +26,10 @@ namespace Piccolo
 
     struct EngineContentViewport
     {
-        float x { 0.f};
-        float y { 0.f};
-        float width { 0.f};
-        float height { 0.f};
+        float x {0.f};
+        float y {0.f};
+        float width {0.f};
+        float height {0.f};
     };
 
     class RenderSystem
