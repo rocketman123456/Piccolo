@@ -670,9 +670,15 @@ namespace Piccolo
         }
 
         auto menu_bar_rect = ImGui::GetCurrentWindow()->MenuBarRect();
+        float menu_bar_y = menu_bar_rect.GetHeight();
 
         Vector2 new_window_pos  = {0.0f, 0.0f};
         Vector2 new_window_size = {0.0f, 0.0f};
+        //new_window_pos.x        = ImGui::GetCurrentWindow()->Pos.x - ImGui::GetWindowViewport()->WorkPos.x;// - ImGui::GetMainViewport()->Pos.x;// ImGui::GetWindowPos().x;
+        //new_window_pos.y        = ImGui::GetCurrentWindow()->Pos.y - ImGui::GetWindowViewport()->WorkPos.y + menu_bar_y;// - ImGui::GetMainViewport()->Pos.y;//ImGui::GetWindowPos().y + menu_bar_rect.Min.y;
+        //new_window_size.x       = ImGui::GetWindowSize().x;
+        //new_window_size.y       = ImGui::GetWindowSize().y - menu_bar_y;// - menu_bar_rect.Min.y;
+
         new_window_pos.x        = ImGui::GetWindowPos().x;
         new_window_pos.y        = ImGui::GetWindowPos().y + menu_bar_rect.Min.y;
         new_window_size.x       = ImGui::GetWindowSize().x;
@@ -814,7 +820,7 @@ namespace Piccolo
 
         // load font for imgui
         ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;// | ImGuiConfigFlags_ViewportsEnable;
         io.ConfigDockingAlwaysTabBar         = true;
         io.ConfigWindowsMoveFromTitleBarOnly = true;
         io.Fonts->AddFontFromFileTTF(
