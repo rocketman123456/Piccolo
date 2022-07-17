@@ -14,6 +14,7 @@ namespace Piccolo
 {
     void FlockComponent::postLoadResource(std::weak_ptr<GObject> parent_object)
     {
+        // TODO : generate more mesh or polygon for particles
     }
 
     void FlockComponent::tick(float delta_time)

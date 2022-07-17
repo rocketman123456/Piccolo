@@ -814,7 +814,7 @@ namespace Piccolo
 
         // load font for imgui
         ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
         io.ConfigDockingAlwaysTabBar         = true;
         io.ConfigWindowsMoveFromTitleBarOnly = true;
         io.Fonts->AddFontFromFileTTF(

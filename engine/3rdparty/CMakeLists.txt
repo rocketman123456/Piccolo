@@ -15,9 +15,9 @@ if(NOT TARGET glm)
     set_target_properties(glm_static PROPERTIES FOLDER ${third_party_folder}/glm)
 endif()
 
-if(NOT TARGET miniaudio)
-    set_target_properties(miniaudio PROPERTIES FOLDER ${third_party_folder}/glm)
-endif()
+# if(NOT TARGET miniaudio)
+#     set_target_properties(miniaudio PROPERTIES FOLDER ${third_party_folder}/glm)
+# endif()
 
 if(NOT TARGET glfw)
     option(GLFW_BUILD_EXAMPLES "" OFF)

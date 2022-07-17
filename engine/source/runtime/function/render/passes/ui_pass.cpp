@@ -105,6 +105,12 @@ namespace Piccolo
 
             ImGui::Render();
 
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+            }
+
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_vulkan_rhi->m_current_command_buffer);
 
             if (m_vulkan_rhi->isDebugLabelEnabled())
