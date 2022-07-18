@@ -24,13 +24,12 @@
             "$typeName": "TransformComponent"
         },
         {
-            "$typeName": "MeshComponent",
             "$context": {
                 "mesh_res": {
                     "sub_meshes": [
                         {
-                            "material": "asset/objects/environment/_material/gold.material.json",
-                            "obj_file_ref": "asset/objects/environment/wall/components/mesh/wall.obj",
+                            "material": "asset/objects/environment/_material/white.material.json",
+                            "obj_file_ref": "asset/objects/basic/cube.obj",
                             "transform": {
                                 "position": {
                                     "x": 0,
@@ -52,7 +51,8 @@
                         }
                     ]
                 }
-            }
+            },
+            "$typeName": "MeshComponent"
         },
         {
             "$typeName": "RigidBodyComponent",
