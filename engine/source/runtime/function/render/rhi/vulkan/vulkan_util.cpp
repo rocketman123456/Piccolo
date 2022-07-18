@@ -181,15 +181,15 @@ namespace Piccolo
         return image_view;
     }
 
-    void VulkanUtil::createGlobalImage(RHI*               rhi,
-                                       VkImage&           image,
-                                       VkImageView&       image_view,
-                                       VmaAllocation&     image_allocation,
-                                       uint32_t           texture_image_width,
-                                       uint32_t           texture_image_height,
-                                       void*              texture_image_pixels,
+    void VulkanUtil::createGlobalImage(RHI*                 rhi,
+                                       VkImage&             image,
+                                       VkImageView&         image_view,
+                                       VmaAllocation&       image_allocation,
+                                       uint32_t             texture_image_width,
+                                       uint32_t             texture_image_height,
+                                       void*                texture_image_pixels,
                                        PICCOLO_PIXEL_FORMAT texture_image_format,
-                                       uint32_t           miplevels)
+                                       uint32_t             miplevels)
     {
         if (!texture_image_pixels)
         {
@@ -323,7 +323,7 @@ namespace Piccolo
                                    uint32_t             texture_image_width,
                                    uint32_t             texture_image_height,
                                    std::array<void*, 6> texture_image_pixels,
-                                   PICCOLO_PIXEL_FORMAT   texture_image_format,
+                                   PICCOLO_PIXEL_FORMAT texture_image_format,
                                    uint32_t             miplevels)
     {
         VkDeviceSize texture_layer_byte_size;
