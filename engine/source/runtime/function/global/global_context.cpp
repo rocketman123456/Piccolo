@@ -16,6 +16,7 @@
 #include "runtime/function/physics/physics_manager.h"
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
+#include "runtime/function/audio/audio_system.h"
 
 namespace Piccolo
 {
@@ -36,6 +37,9 @@ namespace Piccolo
 
         m_physics_manager = std::make_shared<PhysicsManager>();
         m_physics_manager->initialize();
+
+        m_audio_system = std::make_shared<AudioSystem>();
+        m_audio_system->initialize();
 
         m_world_manager = std::make_shared<WorldManager>();
         m_world_manager->initialize();
@@ -62,6 +66,8 @@ namespace Piccolo
         m_world_manager->clear();
         m_world_manager.reset();
 
+        m_audio_system->finalize();
+
         m_legacy_physics_system.reset();
 
         m_physics_manager->clear();
@@ -71,7 +77,6 @@ namespace Piccolo
         m_input_system.reset();
 
         m_asset_manager.reset();
-
 
         m_logger_system.reset();
 

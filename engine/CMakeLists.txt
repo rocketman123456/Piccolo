@@ -25,6 +25,15 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT PiccoloEditor)
 endif()
 
+set(miniaudio_include ${THIRD_PARTY_DIR}/miniaudio)
+
+# if(UNIX)
+#   if(APPLE)
+#     find_library(AUDIO_UNIT AudioUnit)
+#     find_library(CORE_FOUNDATION CoreFoundation)
+#   endif()
+# endif()
+
 set(vulkan_include ${THIRD_PARTY_DIR}/VulkanSDK/include)
 
 if(WIN32)

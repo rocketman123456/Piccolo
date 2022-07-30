@@ -15,6 +15,7 @@ namespace Piccolo
     class WorldManager;
     class RenderSystem;
     class WindowSystem;
+    class AudioSystem;
 
     struct EngineInitParams;
 
@@ -36,6 +37,7 @@ namespace Piccolo
         std::shared_ptr<WorldManager>   m_world_manager;
         std::shared_ptr<PhysicsSystem>  m_legacy_physics_system;
         std::shared_ptr<PhysicsManager> m_physics_manager;
+        std::shared_ptr<AudioSystem>    m_audio_system;
         std::shared_ptr<WindowSystem>   m_window_system;
         std::shared_ptr<RenderSystem>   m_render_system;
     };

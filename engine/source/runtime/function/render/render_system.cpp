@@ -42,6 +42,7 @@ namespace Piccolo
         // global rendering resource
         GlobalRenderingRes global_rendering_res;
         const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
+        LOG_DEBUG("global_rendering_res_url :{}", global_rendering_res_url);
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
 
         // upload ibl, color grading textures
