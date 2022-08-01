@@ -2,6 +2,8 @@
 
 #include <miniaudio.h>
 
+#include <cstdint>
+
 namespace Piccolo
 {
     enum class AudioState : uint32_t

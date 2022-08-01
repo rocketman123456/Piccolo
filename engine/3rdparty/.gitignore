@@ -1,0 +1,8 @@
+!*.obj
+!*.exe
+!*.app
+!x64/
+!x86/
+!*.dll
+!*.dylib
+!*.lib
