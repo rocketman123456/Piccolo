@@ -1,6 +1,6 @@
 #pragma once
 
-#include <miniaudio.h>
+#include <cstdint>
 
 namespace Piccolo
 {
@@ -27,6 +27,6 @@ namespace Piccolo
         void update();
 
     private:
-        AudioState m_currentState = None;
+        AudioState m_currentState = AudioState::None;
     };
 } // namespace Piccolo

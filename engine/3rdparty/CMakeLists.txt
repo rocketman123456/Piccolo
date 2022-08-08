@@ -43,6 +43,24 @@ if(NOT TARGET tinyobjloader)
     set_target_properties(uninstall PROPERTIES FOLDER ${third_party_folder}/tinyobjloader)
 endif()
 
+if(NOT TARGET fmod)
+    add_library(fmod SHARED IMPORTED GLOBAL)
+
+    if(WIN32)
+        set_property(TARGET fmod PROPERTY
+            IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/fmod/core/lib/x64/fmod.dll")
+        set_property(TARGET fmod PROPERTY
+            IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/fmod/core/lib/x64/fmod_vc.lib")
+        set_property(TARGET fmod PROPERTY
+            INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/fmod/core/inc")
+    elseif(APPLE)
+        set_property(TARGET fmod PROPERTY
+            IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/fmod/core/lib/libfmod.dylib")
+        set_property(TARGET fmod PROPERTY
+            INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/fmod/core/inc")
+    endif()
+endif()
+
 if(NOT TARGET Jolt)
     option(TARGET_HELLO_WORLD "" OFF)
     option(TARGET_PERFORMANCE_TEST "" OFF)
@@ -60,14 +78,13 @@ if(NOT TARGET Jolt)
 
     if(ENABLE_PHYSICS_DEBUG_RENDERER)
         set_target_properties(Jolt TestFramework
-            PROPERTIES 
+            PROPERTIES
             FOLDER ${third_party_folder}/JoltPhysics
             MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
     else()
         set_target_properties(Jolt
-            PROPERTIES 
+            PROPERTIES
             FOLDER ${third_party_folder}/JoltPhysics
             MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
     endif()
-
 endif()
