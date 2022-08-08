@@ -13,7 +13,8 @@
 // #include "custom_time.h"
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
+#include <string>
+#include <vector>
 
 typedef struct
 {
@@ -37,10 +38,11 @@ typedef struct
 } ProfileSampleHistory;
 
 #define NUM_PROFILE_SAMPLES 50
-ProfileSample        g_samples[NUM_PROFILE_SAMPLES];
-ProfileSampleHistory g_history[NUM_PROFILE_SAMPLES];
-float                g_startProfile = 0.0f;
-float                g_endProfile   = 0.0f;
+ProfileSample            g_samples[NUM_PROFILE_SAMPLES];
+ProfileSampleHistory     g_history[NUM_PROFILE_SAMPLES];
+float                    g_startProfile = 0.0f;
+float                    g_endProfile   = 0.0f;
+std::vector<std::string> g_dumpInfo;
 
 void ProfileInit(void)
 {
@@ -100,9 +102,9 @@ void ProfileEnd(char* name)
     {
         if (strcmp(g_samples[i].szName, name) == 0)
         { // Found the sample
-            unsigned int inner  = 0;
-            int          parent = -1;
-            float        fEndTime = 0.0f;//GetExactTime();
+            unsigned int inner    = 0;
+            int          parent   = -1;
+            float        fEndTime = 0.0f; // GetExactTime();
             g_samples[i].iOpenProfiles--;
 
             // Count all parents and find the immediate parent
@@ -145,8 +147,9 @@ void ProfileDumpOutputToBuffer(void)
     // g_endProfile = GetExactTime();
     //  textBox->Clear();
 
-    // textBox->Printf("  Ave :   Min :   Max :   # : Profile Name\n");
-    // textBox->Printf("--------------------------------------------\n");
+    g_dumpInfo.clear();
+    g_dumpInfo.push_back("  Ave :   Min :   Max :   # : Profile Name\n");
+    g_dumpInfo.push_back("--------------------------------------------\n");
 
     while (i < NUM_PROFILE_SAMPLES && g_samples[i].bValid == true)
     {
@@ -183,7 +186,8 @@ void ProfileDumpOutputToBuffer(void)
         }
 
         sprintf(line, "%5s : %5s : %5s : %3s : %s\n", ave, min, max, num, indentedName);
-        // textBox->Printf(line); // Send the line to text buffer
+        // Send the line to text buffer
+        g_dumpInfo.push_back(line);
         i++;
     }
 
