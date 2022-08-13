@@ -22,5 +22,7 @@ namespace Piccolo
         void setAxisVisibleState(bool state);
 
         void setSelectedAxis(size_t selected_axis);
+
+        virtual void* getRenderContentImage() const;
     };
 } // namespace Piccolo

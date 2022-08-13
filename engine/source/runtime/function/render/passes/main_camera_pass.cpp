@@ -63,12 +63,12 @@ namespace Piccolo
         m_framebuffer.attachments[_main_camera_pass_backup_buffer_odd].format  = VK_FORMAT_R16G16B16A16_SFLOAT;
         m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 
-        for (int i = 0; i < _main_camera_pass_custom_attachment_count; ++i)
+        for (int i = 0; i < _main_camera_pass_custom_attachment_count - 1; ++i)
         {
             VulkanUtil::createImage(m_vulkan_rhi->m_physical_device,
                                     m_vulkan_rhi->m_device,
-                                    m_vulkan_rhi->m_swapchain_extent.width,
-                                    m_vulkan_rhi->m_swapchain_extent.height,
+                                    (uint32_t)m_vulkan_rhi->m_viewport.width,
+                                    (uint32_t)m_vulkan_rhi->m_viewport.height,
                                     m_framebuffer.attachments[i].format,
                                     VK_IMAGE_TILING_OPTIMAL,
                                     VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
@@ -89,6 +89,30 @@ namespace Piccolo
                                                                             1);
         }
 
+        VulkanUtil::createImage(m_vulkan_rhi->m_physical_device,
+                                m_vulkan_rhi->m_device,
+                                (uint32_t)m_vulkan_rhi->m_viewport.width,
+                                (uint32_t)m_vulkan_rhi->m_viewport.height,
+                                m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format,
+                                VK_IMAGE_TILING_OPTIMAL,
+                                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
+                                    VK_IMAGE_USAGE_SAMPLED_BIT,
+                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].image,
+                                m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].mem,
+                                0,
+                                1,
+                                1);
+
+        m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].view =
+            VulkanUtil::createImageView(m_vulkan_rhi->m_device,
+                                        m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].image,
+                                        m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format,
+                                        VK_IMAGE_ASPECT_COLOR_BIT,
+                                        VK_IMAGE_VIEW_TYPE_2D,
+                                        1,
+                                        1);
+
         m_framebuffer.attachments[_main_camera_pass_post_process_buffer_odd].format  = VK_FORMAT_R16G16B16A16_SFLOAT;
         m_framebuffer.attachments[_main_camera_pass_post_process_buffer_even].format = VK_FORMAT_R16G16B16A16_SFLOAT;
         for (int i = _main_camera_pass_custom_attachment_count;
@@ -97,8 +121,8 @@ namespace Piccolo
         {
             VulkanUtil::createImage(m_vulkan_rhi->m_physical_device,
                                     m_vulkan_rhi->m_device,
-                                    m_vulkan_rhi->m_swapchain_extent.width,
-                                    m_vulkan_rhi->m_swapchain_extent.height,
+                                    (uint32_t)m_vulkan_rhi->m_viewport.width,
+                                    (uint32_t)m_vulkan_rhi->m_viewport.height,
                                     m_framebuffer.attachments[i].format,
                                     VK_IMAGE_TILING_OPTIMAL,
                                     VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
@@ -118,6 +142,8 @@ namespace Piccolo
                                                                             1,
                                                                             1);
         }
+
+        m_gui_image = nullptr;
     }
 
     void MainCameraPass::setupRenderPass()
@@ -176,7 +202,7 @@ namespace Piccolo
             m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].format;
         backup_even_color_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
         backup_even_color_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        backup_even_color_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        backup_even_color_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
         backup_even_color_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         backup_even_color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         backup_even_color_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -216,16 +242,16 @@ namespace Piccolo
         depth_attachment_description.initialLayout            = VK_IMAGE_LAYOUT_UNDEFINED;
         depth_attachment_description.finalLayout              = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentDescription& swapchain_image_attachment_description =
-            attachments[_main_camera_pass_swap_chain_image];
-        swapchain_image_attachment_description.format         = m_vulkan_rhi->m_swapchain_image_format;
-        swapchain_image_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
-        swapchain_image_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        swapchain_image_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-        swapchain_image_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        swapchain_image_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        swapchain_image_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-        swapchain_image_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        // VkAttachmentDescription& swapchain_image_attachment_description =
+        //    attachments[_main_camera_pass_swap_chain_image];
+        // swapchain_image_attachment_description.format         = m_vulkan_rhi->m_swapchain_image_format;
+        // swapchain_image_attachment_description.samples        = VK_SAMPLE_COUNT_1_BIT;
+        // swapchain_image_attachment_description.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        // swapchain_image_attachment_description.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        // swapchain_image_attachment_description.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        // swapchain_image_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        // swapchain_image_attachment_description.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        // swapchain_image_attachment_description.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkSubpassDescription subpasses[_main_camera_subpass_count] = {};
 
@@ -392,30 +418,31 @@ namespace Piccolo
         ui_pass.preserveAttachmentCount = 1;
         ui_pass.pPreserveAttachments    = &ui_pass_preserve_attachment;
 
-        VkAttachmentReference combine_ui_pass_input_attachments_reference[2] = {};
-        combine_ui_pass_input_attachments_reference[0].attachment =
-            &backup_odd_color_attachment_description - attachments;
-        combine_ui_pass_input_attachments_reference[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        combine_ui_pass_input_attachments_reference[1].attachment =
-            &backup_even_color_attachment_description - attachments;
-        combine_ui_pass_input_attachments_reference[1].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        // VkAttachmentReference combine_ui_pass_input_attachments_reference[2] = {};
+        // combine_ui_pass_input_attachments_reference[0].attachment =
+        //    &backup_odd_color_attachment_description - attachments;
+        // combine_ui_pass_input_attachments_reference[0].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        // combine_ui_pass_input_attachments_reference[1].attachment =
+        //    &backup_even_color_attachment_description - attachments;
+        // combine_ui_pass_input_attachments_reference[1].layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkAttachmentReference combine_ui_pass_color_attachment_reference {};
-        combine_ui_pass_color_attachment_reference.attachment = &swapchain_image_attachment_description - attachments;
-        combine_ui_pass_color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        // VkAttachmentReference combine_ui_pass_color_attachment_reference {};
+        // combine_ui_pass_color_attachment_reference.attachment = &swapchain_image_attachment_description -
+        // attachments; combine_ui_pass_color_attachment_reference.layout     =
+        // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        VkSubpassDescription& combine_ui_pass = subpasses[_main_camera_subpass_combine_ui];
-        combine_ui_pass.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        combine_ui_pass.inputAttachmentCount  = sizeof(combine_ui_pass_input_attachments_reference) /
-                                               sizeof(combine_ui_pass_input_attachments_reference[0]);
-        combine_ui_pass.pInputAttachments       = combine_ui_pass_input_attachments_reference;
-        combine_ui_pass.colorAttachmentCount    = 1;
-        combine_ui_pass.pColorAttachments       = &combine_ui_pass_color_attachment_reference;
-        combine_ui_pass.pDepthStencilAttachment = NULL;
-        combine_ui_pass.preserveAttachmentCount = 0;
-        combine_ui_pass.pPreserveAttachments    = NULL;
+        // VkSubpassDescription& combine_ui_pass = subpasses[_main_camera_subpass_combine_ui];
+        // combine_ui_pass.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        // combine_ui_pass.inputAttachmentCount  = sizeof(combine_ui_pass_input_attachments_reference) /
+        //                                       sizeof(combine_ui_pass_input_attachments_reference[0]);
+        // combine_ui_pass.pInputAttachments       = combine_ui_pass_input_attachments_reference;
+        // combine_ui_pass.colorAttachmentCount    = 1;
+        // combine_ui_pass.pColorAttachments       = &combine_ui_pass_color_attachment_reference;
+        // combine_ui_pass.pDepthStencilAttachment = NULL;
+        // combine_ui_pass.preserveAttachmentCount = 0;
+        // combine_ui_pass.pPreserveAttachments    = NULL;
 
-        VkSubpassDependency dependencies[8] = {};
+        VkSubpassDependency dependencies[7] = {};
 
         VkSubpassDependency& deferred_lighting_pass_depend_on_shadow_map_pass = dependencies[0];
         deferred_lighting_pass_depend_on_shadow_map_pass.srcSubpass           = VK_SUBPASS_EXTERNAL;
@@ -501,18 +528,18 @@ namespace Piccolo
         ui_pass_depend_on_fxaa_pass.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
         ui_pass_depend_on_fxaa_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-        VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[7];
-        combine_ui_pass_depend_on_ui_pass.srcSubpass           = _main_camera_subpass_ui;
-        combine_ui_pass_depend_on_ui_pass.dstSubpass           = _main_camera_subpass_combine_ui;
-        combine_ui_pass_depend_on_ui_pass.srcStageMask =
-            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        combine_ui_pass_depend_on_ui_pass.dstStageMask =
-            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        combine_ui_pass_depend_on_ui_pass.srcAccessMask =
-            VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        combine_ui_pass_depend_on_ui_pass.dstAccessMask =
-            VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-        combine_ui_pass_depend_on_ui_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+        // VkSubpassDependency& combine_ui_pass_depend_on_ui_pass = dependencies[7];
+        // combine_ui_pass_depend_on_ui_pass.srcSubpass           = _main_camera_subpass_ui;
+        // combine_ui_pass_depend_on_ui_pass.dstSubpass           = _main_camera_subpass_combine_ui;
+        // combine_ui_pass_depend_on_ui_pass.srcStageMask =
+        //    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        // combine_ui_pass_depend_on_ui_pass.dstStageMask =
+        //    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        // combine_ui_pass_depend_on_ui_pass.srcAccessMask =
+        //    VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        // combine_ui_pass_depend_on_ui_pass.dstAccessMask =
+        //    VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+        // combine_ui_pass_depend_on_ui_pass.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
         VkRenderPassCreateInfo renderpass_create_info {};
         renderpass_create_info.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -2138,10 +2165,10 @@ namespace Piccolo
 
     void MainCameraPass::setupSwapchainFramebuffers()
     {
-        m_swapchain_framebuffers.resize(m_vulkan_rhi->m_swapchain_imageviews.size());
+        m_swapchain_framebuffers.resize(m_vulkan_rhi->m_max_frames_in_flight);
 
         // create frame buffer for every imageview
-        for (size_t i = 0; i < m_vulkan_rhi->m_swapchain_imageviews.size(); i++)
+        for (size_t i = 0; i < m_vulkan_rhi->m_max_frames_in_flight; i++)
         {
             VkImageView framebuffer_attachments_for_image_view[_main_camera_pass_attachment_count] = {
                 m_framebuffer.attachments[_main_camera_pass_gbuffer_a].view,
@@ -2151,8 +2178,7 @@ namespace Piccolo
                 m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].view,
                 m_framebuffer.attachments[_main_camera_pass_post_process_buffer_odd].view,
                 m_framebuffer.attachments[_main_camera_pass_post_process_buffer_even].view,
-                m_vulkan_rhi->m_depth_image_view,
-                m_vulkan_rhi->m_swapchain_imageviews[i]};
+                m_vulkan_rhi->m_depth_image_view};
 
             VkFramebufferCreateInfo framebuffer_create_info {};
             framebuffer_create_info.sType      = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -2161,8 +2187,8 @@ namespace Piccolo
             framebuffer_create_info.attachmentCount =
                 (sizeof(framebuffer_attachments_for_image_view) / sizeof(framebuffer_attachments_for_image_view[0]));
             framebuffer_create_info.pAttachments = framebuffer_attachments_for_image_view;
-            framebuffer_create_info.width        = m_vulkan_rhi->m_swapchain_extent.width;
-            framebuffer_create_info.height       = m_vulkan_rhi->m_swapchain_extent.height;
+            framebuffer_create_info.width        = (uint32_t)m_vulkan_rhi->m_viewport.width;
+            framebuffer_create_info.height       = (uint32_t)m_vulkan_rhi->m_viewport.height;
             framebuffer_create_info.layers       = 1;
 
             if (vkCreateFramebuffer(
@@ -2208,7 +2234,8 @@ namespace Piccolo
             renderpass_begin_info.renderPass        = m_framebuffer.render_pass;
             renderpass_begin_info.framebuffer       = m_swapchain_framebuffers[current_swapchain_image_index];
             renderpass_begin_info.renderArea.offset = {0, 0};
-            renderpass_begin_info.renderArea.extent = m_vulkan_rhi->m_swapchain_extent;
+            renderpass_begin_info.renderArea.extent = {(uint32_t)m_vulkan_rhi->m_viewport.width,
+                                                       (uint32_t)m_vulkan_rhi->m_viewport.height};
 
             VkClearValue clear_values[_main_camera_pass_attachment_count];
             clear_values[_main_camera_pass_gbuffer_a].color                = {{0.0f, 0.0f, 0.0f, 0.0f}};
@@ -2219,7 +2246,6 @@ namespace Piccolo
             clear_values[_main_camera_pass_post_process_buffer_odd].color  = {{0.0f, 0.0f, 0.0f, 1.0f}};
             clear_values[_main_camera_pass_post_process_buffer_even].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
             clear_values[_main_camera_pass_depth].depthStencil             = {1.0f, 0};
-            clear_values[_main_camera_pass_swap_chain_image].color         = {{0.0f, 0.0f, 0.0f, 1.0f}};
             renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
             renderpass_begin_info.pClearValues    = clear_values;
 
@@ -2287,33 +2313,33 @@ namespace Piccolo
 
         m_vulkan_rhi->m_vk_cmd_next_subpass(m_vulkan_rhi->m_current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
 
-        VkClearAttachment clear_attachments[1];
-        clear_attachments[0].aspectMask                  = VK_IMAGE_ASPECT_COLOR_BIT;
-        clear_attachments[0].colorAttachment             = 0;
-        clear_attachments[0].clearValue.color.float32[0] = 0.0;
-        clear_attachments[0].clearValue.color.float32[1] = 0.0;
-        clear_attachments[0].clearValue.color.float32[2] = 0.0;
-        clear_attachments[0].clearValue.color.float32[3] = 0.0;
-        VkClearRect clear_rects[1];
-        clear_rects[0].baseArrayLayer     = 0;
-        clear_rects[0].layerCount         = 1;
-        clear_rects[0].rect.offset.x      = 0;
-        clear_rects[0].rect.offset.y      = 0;
-        clear_rects[0].rect.extent.width  = m_vulkan_rhi->m_swapchain_extent.width;
-        clear_rects[0].rect.extent.height = m_vulkan_rhi->m_swapchain_extent.height;
-        m_vulkan_rhi->m_vk_cmd_clear_attachments(m_vulkan_rhi->m_current_command_buffer,
-                                             sizeof(clear_attachments) / sizeof(clear_attachments[0]),
-                                             clear_attachments,
-                                             sizeof(clear_rects) / sizeof(clear_rects[0]),
-                                             clear_rects);
+        // VkClearAttachment clear_attachments[1];
+        // clear_attachments[0].aspectMask                  = VK_IMAGE_ASPECT_COLOR_BIT;
+        // clear_attachments[0].colorAttachment             = 0;
+        // clear_attachments[0].clearValue.color.float32[0] = 0.0;
+        // clear_attachments[0].clearValue.color.float32[1] = 0.0;
+        // clear_attachments[0].clearValue.color.float32[2] = 0.0;
+        // clear_attachments[0].clearValue.color.float32[3] = 0.0;
+        // VkClearRect clear_rects[1];
+        // clear_rects[0].baseArrayLayer     = 0;
+        // clear_rects[0].layerCount         = 1;
+        // clear_rects[0].rect.offset.x      = 0;
+        // clear_rects[0].rect.offset.y      = 0;
+        // clear_rects[0].rect.extent.width  = (uint32_t)m_vulkan_rhi->m_viewport.width;
+        // clear_rects[0].rect.extent.height = (uint32_t)m_vulkan_rhi->m_viewport.height;
+        // m_vulkan_rhi->m_vk_cmd_clear_attachments(m_vulkan_rhi->m_current_command_buffer,
+        //                                         sizeof(clear_attachments) / sizeof(clear_attachments[0]),
+        //                                         clear_attachments,
+        //                                         sizeof(clear_rects) / sizeof(clear_rects[0]),
+        //                                         clear_rects);
 
         drawAxis();
 
+        m_vulkan_rhi->m_vk_cmd_end_render_pass(m_vulkan_rhi->m_current_command_buffer);
+
+        m_vulkan_rhi->beginUIRenderPass();
+
         ui_pass.draw();
-
-        m_vulkan_rhi->m_vk_cmd_next_subpass(m_vulkan_rhi->m_current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        combine_ui_pass.draw();
 
         m_vulkan_rhi->m_vk_cmd_end_render_pass(m_vulkan_rhi->m_current_command_buffer);
     }
@@ -2331,7 +2357,8 @@ namespace Piccolo
             renderpass_begin_info.renderPass        = m_framebuffer.render_pass;
             renderpass_begin_info.framebuffer       = m_swapchain_framebuffers[current_swapchain_image_index];
             renderpass_begin_info.renderArea.offset = {0, 0};
-            renderpass_begin_info.renderArea.extent = m_vulkan_rhi->m_swapchain_extent;
+            renderpass_begin_info.renderArea.extent = {(uint32_t)m_vulkan_rhi->m_viewport.width,
+                                                       (uint32_t)m_vulkan_rhi->m_viewport.height};
 
             VkClearValue clear_values[_main_camera_pass_attachment_count];
             clear_values[_main_camera_pass_gbuffer_a].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
@@ -2340,9 +2367,8 @@ namespace Piccolo
             clear_values[_main_camera_pass_backup_buffer_odd].color  = {{0.0f, 0.0f, 0.0f, 1.0f}};
             clear_values[_main_camera_pass_backup_buffer_even].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
             clear_values[_main_camera_pass_depth].depthStencil       = {1.0f, 0};
-            clear_values[_main_camera_pass_swap_chain_image].color   = {{0.0f, 0.0f, 0.0f, 1.0f}};
-            renderpass_begin_info.clearValueCount                    = (sizeof(clear_values) / sizeof(clear_values[0]));
-            renderpass_begin_info.pClearValues                       = clear_values;
+            renderpass_begin_info.clearValueCount = (sizeof(clear_values) / sizeof(clear_values[0]));
+            renderpass_begin_info.pClearValues    = clear_values;
 
             m_vulkan_rhi->m_vk_cmd_begin_render_pass(
                 m_vulkan_rhi->m_current_command_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
@@ -2382,25 +2408,25 @@ namespace Piccolo
 
         m_vulkan_rhi->m_vk_cmd_next_subpass(m_vulkan_rhi->m_current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
 
-        VkClearAttachment clear_attachments[1];
-        clear_attachments[0].aspectMask                  = VK_IMAGE_ASPECT_COLOR_BIT;
-        clear_attachments[0].colorAttachment             = 0;
-        clear_attachments[0].clearValue.color.float32[0] = 0.0;
-        clear_attachments[0].clearValue.color.float32[1] = 0.0;
-        clear_attachments[0].clearValue.color.float32[2] = 0.0;
-        clear_attachments[0].clearValue.color.float32[3] = 0.0;
-        VkClearRect clear_rects[1];
-        clear_rects[0].baseArrayLayer     = 0;
-        clear_rects[0].layerCount         = 1;
-        clear_rects[0].rect.offset.x      = 0;
-        clear_rects[0].rect.offset.y      = 0;
-        clear_rects[0].rect.extent.width  = m_vulkan_rhi->m_swapchain_extent.width;
-        clear_rects[0].rect.extent.height = m_vulkan_rhi->m_swapchain_extent.height;
-        m_vulkan_rhi->m_vk_cmd_clear_attachments(m_vulkan_rhi->m_current_command_buffer,
-                                             sizeof(clear_attachments) / sizeof(clear_attachments[0]),
-                                             clear_attachments,
-                                             sizeof(clear_rects) / sizeof(clear_rects[0]),
-                                             clear_rects);
+        // VkClearAttachment clear_attachments[1];
+        // clear_attachments[0].aspectMask                  = VK_IMAGE_ASPECT_COLOR_BIT;
+        // clear_attachments[0].colorAttachment             = 0;
+        // clear_attachments[0].clearValue.color.float32[0] = 0.0;
+        // clear_attachments[0].clearValue.color.float32[1] = 0.0;
+        // clear_attachments[0].clearValue.color.float32[2] = 0.0;
+        // clear_attachments[0].clearValue.color.float32[3] = 0.0;
+        // VkClearRect clear_rects[1];
+        // clear_rects[0].baseArrayLayer     = 0;
+        // clear_rects[0].layerCount         = 1;
+        // clear_rects[0].rect.offset.x      = 0;
+        // clear_rects[0].rect.offset.y      = 0;
+        // clear_rects[0].rect.extent.width  = (uint32_t)m_vulkan_rhi->m_viewport.width;
+        // clear_rects[0].rect.extent.height = (uint32_t)m_vulkan_rhi->m_viewport.height;
+        // m_vulkan_rhi->m_vk_cmd_clear_attachments(m_vulkan_rhi->m_current_command_buffer,
+        //                                         sizeof(clear_attachments) / sizeof(clear_attachments[0]),
+        //                                         clear_attachments,
+        //                                         sizeof(clear_rects) / sizeof(clear_rects[0]),
+        //                                         clear_rects);
 
         drawAxis();
 
@@ -2411,6 +2437,16 @@ namespace Piccolo
         combine_ui_pass.draw();
 
         m_vulkan_rhi->m_vk_cmd_end_render_pass(m_vulkan_rhi->m_current_command_buffer);
+    }
+
+    void* MainCameraPass::getGuiImage()
+    {
+        if (!m_gui_image)
+        {
+            m_gui_image =
+                m_vulkan_rhi->getGuiImage(m_framebuffer.attachments[_main_camera_pass_backup_buffer_even].view);
+        }
+        return m_gui_image;
     }
 
     void MainCameraPass::drawMeshGbuffer()

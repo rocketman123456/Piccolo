@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <cassert>
 
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_vulkan.h>
+
 // https://gcc.gnu.org/onlinedocs/cpp/Stringizing.html
 #define PICCOLO_XSTR(s) PICCOLO_STR(s)
 #define PICCOLO_STR(s) #s
@@ -73,6 +76,9 @@
 #include <stdexcept>
 #include <string>
 
+ImGui_ImplVulkanH_Window g_MainWindowData;
+int                      g_MinImageCount = 3;
+
 namespace Piccolo
 {
     VulkanRHI::~VulkanRHI()
@@ -88,6 +94,11 @@ namespace Piccolo
 
         m_viewport = {0.0f, 0.0f, (float)window_size[0], (float)window_size[1], 0.0f, 1.0f};
         m_scissor  = {{0, 0}, {(uint32_t)window_size[0], (uint32_t)window_size[1]}};
+
+        m_content_sizes[0] = m_viewport.x;
+        m_content_sizes[1] = m_viewport.y;
+        m_content_sizes[2] = m_viewport.width;
+        m_content_sizes[3] = m_viewport.height;
 
 #ifndef NDEBUG
         m_enable_validation_Layers = true;
@@ -136,6 +147,8 @@ namespace Piccolo
 
         createLogicalDevice();
 
+        setupVulkanWindow();
+
         createCommandPool();
 
         createCommandBuffers();
@@ -146,7 +159,7 @@ namespace Piccolo
 
         createSwapchain();
 
-        createSwapchainImageViews();
+        // createSwapchainImageViews();
 
         createFramebufferImageAndView();
 
@@ -155,8 +168,9 @@ namespace Piccolo
 
     void VulkanRHI::prepareContext()
     {
-        m_p_current_frame_index  = &m_current_frame_index;
-        m_current_command_buffer = m_command_buffers[m_current_frame_index];
+        m_p_current_frame_index  = &g_MainWindowData.FrameIndex;
+        m_current_frame_index    = g_MainWindowData.FrameIndex;
+        m_current_command_buffer = g_MainWindowData.Frames[g_MainWindowData.FrameIndex].CommandBuffer;
         m_p_command_buffers      = m_command_buffers;
         m_p_command_pools        = m_command_pools;
     }
@@ -190,45 +204,26 @@ namespace Piccolo
 
     bool VulkanRHI::prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain)
     {
-        VkResult acquire_image_result =
-            vkAcquireNextImageKHR(m_device,
-                                  m_swapchain,
-                                  UINT64_MAX,
-                                  m_image_available_for_render_semaphores[m_current_frame_index],
-                                  VK_NULL_HANDLE,
-                                  &m_current_swapchain_image_index);
+        VkSemaphore image_acquired_semaphore =
+            g_MainWindowData.FrameSemaphores[g_MainWindowData.SemaphoreIndex].ImageAcquiredSemaphore;
+        VkSemaphore render_complete_semaphore =
+            g_MainWindowData.FrameSemaphores[g_MainWindowData.SemaphoreIndex].RenderCompleteSemaphore;
+        VkResult acquire_image_result = vkAcquireNextImageKHR(m_device,
+                                                              g_MainWindowData.Swapchain,
+                                                              UINT64_MAX,
+                                                              image_acquired_semaphore,
+                                                              VK_NULL_HANDLE,
+                                                              &g_MainWindowData.FrameIndex);
 
-        if (VK_ERROR_OUT_OF_DATE_KHR == acquire_image_result)
+        prepareContext();
+
+        m_current_swapchain_image_index = g_MainWindowData.FrameIndex;
+
+        if (VK_ERROR_OUT_OF_DATE_KHR == acquire_image_result || VK_SUBOPTIMAL_KHR == acquire_image_result ||
+            needUpdateFrameBuffer())
         {
             recreateSwapchain();
             passUpdateAfterRecreateSwapchain();
-            return true;
-        }
-        else if (VK_SUBOPTIMAL_KHR == acquire_image_result)
-        {
-            recreateSwapchain();
-            passUpdateAfterRecreateSwapchain();
-
-            // NULL submit to wait semaphore
-            VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT};
-            VkSubmitInfo         submit_info   = {};
-            submit_info.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submit_info.waitSemaphoreCount     = 1;
-            submit_info.pWaitSemaphores        = &m_image_available_for_render_semaphores[m_current_frame_index];
-            submit_info.pWaitDstStageMask      = wait_stages;
-            submit_info.commandBufferCount     = 0;
-            submit_info.pCommandBuffers        = NULL;
-            submit_info.signalSemaphoreCount   = 0;
-            submit_info.pSignalSemaphores      = NULL;
-
-            VkResult res_reset_fences = m_vk_reset_fences(m_device, 1, &m_is_frame_in_flight_fences[m_current_frame_index]);
-            assert(VK_SUCCESS == res_reset_fences);
-
-            VkResult res_queue_submit =
-                vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_is_frame_in_flight_fences[m_current_frame_index]);
-            assert(VK_SUCCESS == res_queue_submit);
-
-            m_current_frame_index = (m_current_frame_index + 1) % m_max_frames_in_flight;
             return true;
         }
         else
@@ -236,17 +231,41 @@ namespace Piccolo
             assert(VK_SUCCESS == acquire_image_result);
         }
 
-        // begin command buffer
-        VkCommandBufferBeginInfo command_buffer_begin_info {};
-        command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        command_buffer_begin_info.flags            = 0;
-        command_buffer_begin_info.pInheritanceInfo = nullptr;
+        ImGui_ImplVulkanH_Frame* fd = &g_MainWindowData.Frames[g_MainWindowData.FrameIndex];
+        {
+            VkResult err = vkWaitForFences(m_device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);
+            assert(VK_SUCCESS == err);
 
-        VkResult res_begin_command_buffer =
-            m_vk_begin_command_buffer(m_command_buffers[m_current_frame_index], &command_buffer_begin_info);
-        assert(VK_SUCCESS == res_begin_command_buffer);
+            err = vkResetFences(m_device, 1, &fd->Fence);
+            assert(VK_SUCCESS == err);
+        }
+        {
+            VkResult err = vkResetCommandPool(m_device, fd->CommandPool, 0);
+            assert(VK_SUCCESS == err);
+
+            VkCommandBufferBeginInfo info = {};
+            info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
+            assert(VK_SUCCESS == err);
+        }
 
         return false;
+    }
+
+    void VulkanRHI::beginUIRenderPass()
+    {
+        ImGui_ImplVulkanH_Frame* fd = &g_MainWindowData.Frames[g_MainWindowData.FrameIndex];
+
+        VkRenderPassBeginInfo info    = {};
+        info.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        info.renderPass               = g_MainWindowData.RenderPass;
+        info.framebuffer              = fd->Framebuffer;
+        info.renderArea.extent.width  = g_MainWindowData.Width;
+        info.renderArea.extent.height = g_MainWindowData.Height;
+        info.clearValueCount          = 1;
+        info.pClearValues             = &g_MainWindowData.ClearValue;
+        vkCmdBeginRenderPass(fd->CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
     }
 
     void VulkanRHI::submitRendering(std::function<void()> passUpdateAfterRecreateSwapchain)
@@ -260,41 +279,67 @@ namespace Piccolo
         VkSubmitInfo         submit_info   = {};
         submit_info.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submit_info.waitSemaphoreCount     = 1;
-        submit_info.pWaitSemaphores        = &m_image_available_for_render_semaphores[m_current_frame_index];
+        submit_info.pWaitSemaphores        = &m_image_available_for_render_semaphores[g_MainWindowData.SemaphoreIndex];
         submit_info.pWaitDstStageMask      = wait_stages;
         submit_info.commandBufferCount     = 1;
         submit_info.pCommandBuffers        = &m_command_buffers[m_current_frame_index];
         submit_info.signalSemaphoreCount   = 1;
-        submit_info.pSignalSemaphores      = &m_image_finished_for_presentation_semaphores[m_current_frame_index];
-
-        VkResult res_reset_fences = m_vk_reset_fences(m_device, 1, &m_is_frame_in_flight_fences[m_current_frame_index]);
-        assert(VK_SUCCESS == res_reset_fences);
+        submit_info.pSignalSemaphores = &m_image_finished_for_presentation_semaphores[g_MainWindowData.SemaphoreIndex];
 
         VkResult res_queue_submit =
             vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_is_frame_in_flight_fences[m_current_frame_index]);
         assert(VK_SUCCESS == res_queue_submit);
 
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
+
         // present swapchain
         VkPresentInfoKHR present_info   = {};
         present_info.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         present_info.waitSemaphoreCount = 1;
-        present_info.pWaitSemaphores    = &m_image_finished_for_presentation_semaphores[m_current_frame_index];
-        present_info.swapchainCount     = 1;
-        present_info.pSwapchains        = &m_swapchain;
-        present_info.pImageIndices      = &m_current_swapchain_image_index;
+        present_info.pWaitSemaphores = &m_image_finished_for_presentation_semaphores[g_MainWindowData.SemaphoreIndex];
+        present_info.swapchainCount  = 1;
+        present_info.pSwapchains     = &m_swapchain;
+        present_info.pImageIndices   = &m_current_swapchain_image_index;
 
         VkResult present_result = vkQueuePresentKHR(m_present_queue, &present_info);
         if (VK_ERROR_OUT_OF_DATE_KHR == present_result || VK_SUBOPTIMAL_KHR == present_result)
         {
             recreateSwapchain();
             passUpdateAfterRecreateSwapchain();
+            return;
         }
         else
         {
             assert(VK_SUCCESS == present_result);
         }
 
-        m_current_frame_index = (m_current_frame_index + 1) % m_max_frames_in_flight;
+        g_MainWindowData.SemaphoreIndex = (g_MainWindowData.SemaphoreIndex + 1) % g_MainWindowData.ImageCount;
+    }
+
+    void* VulkanRHI::getGuiImage(VkImageView view)
+    {
+        VkSampler sampler = VulkanUtil::getOrCreateLinearSampler(m_physical_device, m_device);
+        return (void*)ImGui_ImplVulkan_AddTexture(sampler, view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    }
+
+    bool VulkanRHI::needUpdateFrameBuffer() const
+    {
+        if (m_content_sizes[0] != m_viewport.x || m_content_sizes[1] != m_viewport.y ||
+            m_content_sizes[2] != m_viewport.width || m_content_sizes[3] != m_viewport.height)
+            return true;
+        return false;
+    }
+
+    void VulkanRHI::updateViewportSize()
+    {
+        m_viewport.x      = m_content_sizes[0];
+        m_viewport.y      = m_content_sizes[1];
+        m_viewport.width  = m_content_sizes[2];
+        m_viewport.height = m_content_sizes[3];
     }
 
     VkCommandBuffer VulkanRHI::beginSingleTimeCommands()
@@ -375,7 +420,7 @@ namespace Piccolo
         {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
-        
+
 #if defined(__MACH__)
         extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #endif
@@ -598,77 +643,40 @@ namespace Piccolo
         vkGetDeviceQueue(m_device, m_queue_indices.m_present_family.value(), 0, &m_present_queue);
 
         // more efficient pointer
-        m_vk_wait_for_fences         = (PFN_vkWaitForFences)vkGetDeviceProcAddr(m_device, "vkWaitForFences");
-        m_vk_reset_fences           = (PFN_vkResetFences)vkGetDeviceProcAddr(m_device, "vkResetFences");
-        m_vk_reset_command_pool      = (PFN_vkResetCommandPool)vkGetDeviceProcAddr(m_device, "vkResetCommandPool");
-        m_vk_begin_command_buffer    = (PFN_vkBeginCommandBuffer)vkGetDeviceProcAddr(m_device, "vkBeginCommandBuffer");
-        m_vk_end_command_buffer      = (PFN_vkEndCommandBuffer)vkGetDeviceProcAddr(m_device, "vkEndCommandBuffer");
-        m_vk_cmd_begin_render_pass    = (PFN_vkCmdBeginRenderPass)vkGetDeviceProcAddr(m_device, "vkCmdBeginRenderPass");
-        m_vk_cmd_next_subpass        = (PFN_vkCmdNextSubpass)vkGetDeviceProcAddr(m_device, "vkCmdNextSubpass");
-        m_vk_cmd_end_render_pass      = (PFN_vkCmdEndRenderPass)vkGetDeviceProcAddr(m_device, "vkCmdEndRenderPass");
-        m_vk_cmd_bind_pipeline       = (PFN_vkCmdBindPipeline)vkGetDeviceProcAddr(m_device, "vkCmdBindPipeline");
-        m_vk_cmd_set_viewport        = (PFN_vkCmdSetViewport)vkGetDeviceProcAddr(m_device, "vkCmdSetViewport");
-        m_vk_cmd_set_scissor         = (PFN_vkCmdSetScissor)vkGetDeviceProcAddr(m_device, "vkCmdSetScissor");
-        m_vk_cmd_bind_vertex_buffers  = (PFN_vkCmdBindVertexBuffers)vkGetDeviceProcAddr(m_device, "vkCmdBindVertexBuffers");
-        m_vk_cmd_bind_index_buffer    = (PFN_vkCmdBindIndexBuffer)vkGetDeviceProcAddr(m_device, "vkCmdBindIndexBuffer");
-        m_vk_cmd_bind_descriptor_sets = (PFN_vkCmdBindDescriptorSets)vkGetDeviceProcAddr(m_device, "vkCmdBindDescriptorSets");
-        m_vk_cmd_draw_indexed        = (PFN_vkCmdDrawIndexed)vkGetDeviceProcAddr(m_device, "vkCmdDrawIndexed");
-        m_vk_cmd_clear_attachments   = (PFN_vkCmdClearAttachments)vkGetDeviceProcAddr(m_device, "vkCmdClearAttachments");
+        m_vk_wait_for_fences       = (PFN_vkWaitForFences)vkGetDeviceProcAddr(m_device, "vkWaitForFences");
+        m_vk_reset_fences          = (PFN_vkResetFences)vkGetDeviceProcAddr(m_device, "vkResetFences");
+        m_vk_reset_command_pool    = (PFN_vkResetCommandPool)vkGetDeviceProcAddr(m_device, "vkResetCommandPool");
+        m_vk_begin_command_buffer  = (PFN_vkBeginCommandBuffer)vkGetDeviceProcAddr(m_device, "vkBeginCommandBuffer");
+        m_vk_end_command_buffer    = (PFN_vkEndCommandBuffer)vkGetDeviceProcAddr(m_device, "vkEndCommandBuffer");
+        m_vk_cmd_begin_render_pass = (PFN_vkCmdBeginRenderPass)vkGetDeviceProcAddr(m_device, "vkCmdBeginRenderPass");
+        m_vk_cmd_next_subpass      = (PFN_vkCmdNextSubpass)vkGetDeviceProcAddr(m_device, "vkCmdNextSubpass");
+        m_vk_cmd_end_render_pass   = (PFN_vkCmdEndRenderPass)vkGetDeviceProcAddr(m_device, "vkCmdEndRenderPass");
+        m_vk_cmd_bind_pipeline     = (PFN_vkCmdBindPipeline)vkGetDeviceProcAddr(m_device, "vkCmdBindPipeline");
+        m_vk_cmd_set_viewport      = (PFN_vkCmdSetViewport)vkGetDeviceProcAddr(m_device, "vkCmdSetViewport");
+        m_vk_cmd_set_scissor       = (PFN_vkCmdSetScissor)vkGetDeviceProcAddr(m_device, "vkCmdSetScissor");
+        m_vk_cmd_bind_vertex_buffers =
+            (PFN_vkCmdBindVertexBuffers)vkGetDeviceProcAddr(m_device, "vkCmdBindVertexBuffers");
+        m_vk_cmd_bind_index_buffer = (PFN_vkCmdBindIndexBuffer)vkGetDeviceProcAddr(m_device, "vkCmdBindIndexBuffer");
+        m_vk_cmd_bind_descriptor_sets =
+            (PFN_vkCmdBindDescriptorSets)vkGetDeviceProcAddr(m_device, "vkCmdBindDescriptorSets");
+        m_vk_cmd_draw_indexed      = (PFN_vkCmdDrawIndexed)vkGetDeviceProcAddr(m_device, "vkCmdDrawIndexed");
+        m_vk_cmd_clear_attachments = (PFN_vkCmdClearAttachments)vkGetDeviceProcAddr(m_device, "vkCmdClearAttachments");
 
         m_depth_image_format = findDepthFormat();
     }
 
     void VulkanRHI::createCommandPool()
     {
-        // default graphics command pool
-        {
-            VkCommandPoolCreateInfo command_pool_create_info {};
-            command_pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            command_pool_create_info.pNext            = NULL;
-            command_pool_create_info.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-            command_pool_create_info.queueFamilyIndex = m_queue_indices.m_graphics_family.value();
-
-            if (vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_command_pool) != VK_SUCCESS)
-            {
-                throw std::runtime_error("vk create command pool");
-            }
-        }
-
-        // other command pools
-        {
-            VkCommandPoolCreateInfo command_pool_create_info;
-            command_pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            command_pool_create_info.pNext            = NULL;
-            command_pool_create_info.flags            = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-            command_pool_create_info.queueFamilyIndex = m_queue_indices.m_graphics_family.value();
-
-            for (uint32_t i = 0; i < m_max_frames_in_flight; ++i)
-            {
-                if (vkCreateCommandPool(m_device, &command_pool_create_info, NULL, &m_command_pools[i]) != VK_SUCCESS)
-                {
-                    throw std::runtime_error("vk create command pool");
-                }
-            }
-        }
-    }
-
-    void VulkanRHI::createCommandBuffers()
-    {
-        VkCommandBufferAllocateInfo command_buffer_allocate_info {};
-        command_buffer_allocate_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        command_buffer_allocate_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        command_buffer_allocate_info.commandBufferCount = 1U;
-
         for (uint32_t i = 0; i < m_max_frames_in_flight; ++i)
         {
-            command_buffer_allocate_info.commandPool = m_command_pools[i];
-
-            if (vkAllocateCommandBuffers(m_device, &command_buffer_allocate_info, &m_command_buffers[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("vk allocate command buffers");
-            }
+            m_command_pools[i]   = g_MainWindowData.Frames[i].CommandPool;
+            m_command_buffers[i] = g_MainWindowData.Frames[i].CommandBuffer;
         }
+
+        m_command_pool = g_MainWindowData.Frames[0].CommandPool;
     }
+
+    void VulkanRHI::createCommandBuffers() {}
 
     void VulkanRHI::createDescriptorPool()
     {
@@ -692,8 +700,8 @@ namespace Piccolo
         pool_info.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.poolSizeCount = sizeof(pool_sizes) / sizeof(pool_sizes[0]);
         pool_info.pPoolSizes    = pool_sizes;
-        pool_info.maxSets =
-            1 + 1 + 1 + m_max_material_count + m_max_vertex_blending_mesh_count + 1 + 1; // +skybox + axis descriptor set
+        pool_info.maxSets       = 1 + 1 + 1 + m_max_material_count + m_max_vertex_blending_mesh_count + 1 +
+                            1; // +skybox + axis descriptor set
         pool_info.flags = 0U;
 
         if (vkCreateDescriptorPool(m_device, &pool_info, nullptr, &m_descriptor_pool) != VK_SUCCESS)
@@ -706,34 +714,67 @@ namespace Piccolo
     // (m_vulkan_context._swapchain_images --> semaphores, fences)
     void VulkanRHI::createSyncPrimitives()
     {
-        VkSemaphoreCreateInfo semaphore_create_info {};
-        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        VkFenceCreateInfo fence_create_info {};
-        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT; // the fence is initialized as signaled
-
         for (uint32_t i = 0; i < m_max_frames_in_flight; i++)
         {
-            if (vkCreateSemaphore(
-                    m_device, &semaphore_create_info, nullptr, &m_image_available_for_render_semaphores[i]) !=
-                    VK_SUCCESS ||
-                vkCreateSemaphore(
-                    m_device, &semaphore_create_info, nullptr, &m_image_finished_for_presentation_semaphores[i]) !=
-                    VK_SUCCESS ||
-                vkCreateFence(m_device, &fence_create_info, nullptr, &m_is_frame_in_flight_fences[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("vk create semaphore & fence");
-            }
+            m_is_frame_in_flight_fences[i]             = g_MainWindowData.Frames[i].Fence;
+            m_image_available_for_render_semaphores[i] = g_MainWindowData.FrameSemaphores[i].ImageAcquiredSemaphore;
+            m_image_finished_for_presentation_semaphores[i] =
+                g_MainWindowData.FrameSemaphores[i].RenderCompleteSemaphore;
         }
+    }
+
+    void VulkanRHI::setupVulkanWindow()
+    {
+        ImGui_ImplVulkanH_Window* wd = &g_MainWindowData;
+
+        wd->Surface = m_surface;
+
+        // Check for WSI support
+        VkBool32 res;
+        vkGetPhysicalDeviceSurfaceSupportKHR(
+            m_physical_device, m_queue_indices.m_graphics_family.value(), wd->Surface, &res);
+        if (res != VK_TRUE)
+        {
+            exit(-1);
+        }
+
+        // Select Surface Format
+        const VkFormat requestSurfaceImageFormat[] = {
+            VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM};
+        const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+        wd->SurfaceFormat                              = ImGui_ImplVulkanH_SelectSurfaceFormat(m_physical_device,
+                                                                  wd->Surface,
+                                                                  requestSurfaceImageFormat,
+                                                                  (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat),
+                                                                  requestSurfaceColorSpace);
+
+        // Select Present Mode
+        VkPresentModeKHR present_modes[] = {
+            VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR};
+
+        wd->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(
+            m_physical_device, wd->Surface, &present_modes[0], IM_ARRAYSIZE(present_modes));
+        printf("[vulkan] Selected PresentMode = %d\n", wd->PresentMode);
+
+        // Create SwapChain, RenderPass, Framebuffer, etc.
+        IM_ASSERT(g_MinImageCount >= 2);
+        ImGui_ImplVulkanH_CreateOrResizeWindow(m_instance,
+                                               m_physical_device,
+                                               m_device,
+                                               wd,
+                                               m_queue_indices.m_graphics_family.value(),
+                                               nullptr,
+                                               (int)m_viewport.width,
+                                               (int)m_viewport.height,
+                                               g_MinImageCount);
     }
 
     void VulkanRHI::createFramebufferImageAndView()
     {
         VulkanUtil::createImage(m_physical_device,
                                 m_device,
-                                m_swapchain_extent.width,
-                                m_swapchain_extent.height,
+                                (uint32_t)m_viewport.width,
+                                (uint32_t)m_viewport.height,
                                 m_depth_image_format,
                                 VK_IMAGE_TILING_OPTIMAL,
                                 VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
@@ -749,22 +790,7 @@ namespace Piccolo
             m_device, m_depth_image, m_depth_image_format, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_VIEW_TYPE_2D, 1, 1);
     }
 
-    void VulkanRHI::createSwapchainImageViews()
-    {
-        m_swapchain_imageviews.resize(m_swapchain_images.size());
-
-        // create imageview (one for each this time) for all swapchain images
-        for (size_t i = 0; i < m_swapchain_images.size(); i++)
-        {
-            m_swapchain_imageviews[i] = VulkanUtil::createImageView(m_device,
-                                                                   m_swapchain_images[i],
-                                                                   m_swapchain_image_format,
-                                                                   VK_IMAGE_ASPECT_COLOR_BIT,
-                                                                   VK_IMAGE_VIEW_TYPE_2D,
-                                                                   1,
-                                                                   1);
-        }
-    }
+    void VulkanRHI::createSwapchainImageViews() {}
 
     void VulkanRHI::createAssetAllocator()
     {
@@ -784,79 +810,68 @@ namespace Piccolo
 
     void VulkanRHI::createSwapchain()
     {
-        // query all supports of this physical device
-        SwapChainSupportDetails swapchain_support_details = querySwapChainSupport(m_physical_device);
+        //// query all supports of this physical device
+        // SwapChainSupportDetails swapchain_support_details = querySwapChainSupport(m_physical_device);
 
-        // choose the best or fitting format
-        VkSurfaceFormatKHR chosen_surface_format =
-            chooseSwapchainSurfaceFormatFromDetails(swapchain_support_details.m_formats);
-        // choose the best or fitting present mode
-        VkPresentModeKHR chosen_presentMode =
-            chooseSwapchainPresentModeFromDetails(swapchain_support_details.m_presentModes);
-        // choose the best or fitting extent
-        VkExtent2D chosen_extent = chooseSwapchainExtentFromDetails(swapchain_support_details.m_capabilities);
+        //// choose the best or fitting format
+        // VkSurfaceFormatKHR chosen_surface_format =
+        //    chooseSwapchainSurfaceFormatFromDetails(swapchain_support_details.m_formats);
+        //// choose the best or fitting present mode
+        // VkPresentModeKHR chosen_presentMode =
+        //    chooseSwapchainPresentModeFromDetails(swapchain_support_details.m_presentModes);
+        //// choose the best or fitting extent
+        // VkExtent2D chosen_extent = chooseSwapchainExtentFromDetails(swapchain_support_details.m_capabilities);
 
-        uint32_t image_count = swapchain_support_details.m_capabilities.minImageCount + 1;
-        if (swapchain_support_details.m_capabilities.maxImageCount > 0 &&
-            image_count > swapchain_support_details.m_capabilities.maxImageCount)
-        {
-            image_count = swapchain_support_details.m_capabilities.maxImageCount;
-        }
+        // uint32_t image_count = swapchain_support_details.m_capabilities.minImageCount + 1;
+        // if (swapchain_support_details.m_capabilities.maxImageCount > 0 &&
+        //    image_count > swapchain_support_details.m_capabilities.maxImageCount)
+        //{
+        //    image_count = swapchain_support_details.m_capabilities.maxImageCount;
+        //}
 
-        VkSwapchainCreateInfoKHR createInfo {};
-        createInfo.sType   = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_surface;
+        // VkSwapchainCreateInfoKHR createInfo {};
+        // createInfo.sType   = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        // createInfo.surface = m_surface;
 
-        createInfo.minImageCount    = image_count;
-        createInfo.imageFormat      = chosen_surface_format.format;
-        createInfo.imageColorSpace  = chosen_surface_format.colorSpace;
-        createInfo.imageExtent      = chosen_extent;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        // createInfo.minImageCount    = image_count;
+        // createInfo.imageFormat      = chosen_surface_format.format;
+        // createInfo.imageColorSpace  = chosen_surface_format.colorSpace;
+        // createInfo.imageExtent      = chosen_extent;
+        // createInfo.imageArrayLayers = 1;
+        // createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        uint32_t queueFamilyIndices[] = {m_queue_indices.m_graphics_family.value(), m_queue_indices.m_present_family.value()};
+        // uint32_t queueFamilyIndices[] = {m_queue_indices.m_graphics_family.value(),
+        //                                 m_queue_indices.m_present_family.value()};
 
-        if (m_queue_indices.m_graphics_family != m_queue_indices.m_present_family)
-        {
-            createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
-            createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices   = queueFamilyIndices;
-        }
-        else
-        {
-            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        }
+        // if (m_queue_indices.m_graphics_family != m_queue_indices.m_present_family)
+        //{
+        //    createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
+        //    createInfo.queueFamilyIndexCount = 2;
+        //    createInfo.pQueueFamilyIndices   = queueFamilyIndices;
+        //}
+        // else
+        //{
+        //    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        //}
 
-        createInfo.preTransform   = swapchain_support_details.m_capabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode    = chosen_presentMode;
-        createInfo.clipped        = VK_TRUE;
+        // createInfo.preTransform   = swapchain_support_details.m_capabilities.currentTransform;
+        // createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        // createInfo.presentMode    = chosen_presentMode;
+        // createInfo.clipped        = VK_TRUE;
 
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
+        // createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
-        {
-            throw std::runtime_error("vk create swapchain khr");
-        }
+        // if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
+        //{
+        //    throw std::runtime_error("vk create swapchain khr");
+        //}
 
-        vkGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, nullptr);
-        m_swapchain_images.resize(image_count);
-        vkGetSwapchainImagesKHR(m_device, m_swapchain, &image_count, m_swapchain_images.data());
+        m_swapchain = g_MainWindowData.Swapchain;
 
-        m_swapchain_image_format = chosen_surface_format.format;
-        m_swapchain_extent       = chosen_extent;
-
-        m_scissor = {{0, 0}, {m_swapchain_extent.width, m_swapchain_extent.height}};
+        m_scissor = {{0, 0}, {(uint32_t)m_viewport.width, (uint32_t)m_viewport.height}};
     }
 
-    void VulkanRHI::clearSwapchain()
-    {
-        for (auto imageview : m_swapchain_imageviews)
-        {
-            vkDestroyImageView(m_device, imageview, NULL);
-        }
-        vkDestroySwapchainKHR(m_device, m_swapchain, NULL); // also swapchain images
-    }
+    void VulkanRHI::clearSwapchain() {}
 
     void VulkanRHI::recreateSwapchain()
     {
@@ -869,22 +884,34 @@ namespace Piccolo
             glfwWaitEvents();
         }
 
-        VkResult res_wait_for_fences =
-            m_vk_wait_for_fences(m_device, m_max_frames_in_flight, m_is_frame_in_flight_fences, VK_TRUE, UINT64_MAX);
-        assert(VK_SUCCESS == res_wait_for_fences);
+        {
+            ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
+            ImGui_ImplVulkanH_CreateOrResizeWindow(m_instance,
+                                                   m_physical_device,
+                                                   m_device,
+                                                   &g_MainWindowData,
+                                                   m_queue_indices.m_graphics_family.value(),
+                                                   nullptr,
+                                                   width,
+                                                   height,
+                                                   g_MinImageCount);
+            g_MainWindowData.FrameIndex = 0;
+
+            createCommandPool();
+
+            createCommandBuffers();
+
+            createSyncPrimitives();
+
+            createSwapchain();
+        }
 
         vkDestroyImageView(m_device, m_depth_image_view, NULL);
         vkDestroyImage(m_device, m_depth_image, NULL);
         vkFreeMemory(m_device, m_depth_image_memory, NULL);
 
-        for (auto imageview : m_swapchain_imageviews)
-        {
-            vkDestroyImageView(m_device, imageview, NULL);
-        }
-        vkDestroySwapchainKHR(m_device, m_swapchain, NULL);
+        updateViewportSize();
 
-        createSwapchain();
-        createSwapchainImageViews();
         createFramebufferImageAndView();
     }
 

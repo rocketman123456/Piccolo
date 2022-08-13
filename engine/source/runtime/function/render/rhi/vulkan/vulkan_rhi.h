@@ -56,7 +56,12 @@ namespace Piccolo
         void waitForFences();
         void resetCommandPool();
         bool prepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapchain);
+        void beginUIRenderPass();
         void submitRendering(std::function<void()> passUpdateAfterRecreateSwapchain);
+
+        void* getGuiImage(VkImageView view);
+        bool  needUpdateFrameBuffer() const;
+        void  updateViewportSize();
 
     private:
         void createInstance();
@@ -68,6 +73,7 @@ namespace Piccolo
         void createCommandBuffers();
         void createDescriptorPool();
         void createSyncPrimitives();
+        void setupVulkanWindow();
         void createAssetAllocator();
 
         bool                     checkValidationLayerSupport();
@@ -110,17 +116,17 @@ namespace Piccolo
         VkQueue            m_present_queue {VK_NULL_HANDLE};
         VkCommandPool      m_command_pool {VK_NULL_HANDLE};
 
-        VkSwapchainKHR           m_swapchain {VK_NULL_HANDLE};
-        VkFormat                 m_swapchain_image_format {VK_FORMAT_UNDEFINED};
-        VkExtent2D               m_swapchain_extent;
-        std::vector<VkImage>     m_swapchain_images;
-        std::vector<VkImageView> m_swapchain_imageviews;
+        VkSwapchainKHR m_swapchain {VK_NULL_HANDLE};
+        // VkFormat                 m_swapchain_image_format {VK_FORMAT_UNDEFINED};
+        // VkExtent2D               m_swapchain_extent;
+        // std::vector<VkImage>     m_swapchain_images;
+        // std::vector<VkImageView> m_swapchain_imageviews;
 
         VkImage        m_depth_image {VK_NULL_HANDLE};
         VkDeviceMemory m_depth_image_memory {VK_NULL_HANDLE};
         VkImageView    m_depth_image_view {VK_NULL_HANDLE};
 
-        std::vector<VkFramebuffer> m_swapchain_framebuffers;
+        // std::vector<VkFramebuffer> m_swapchain_framebuffers;
 
         // asset allocator use VMA library
         VmaAllocator m_assets_allocator;
@@ -157,11 +163,13 @@ namespace Piccolo
 
         // TODO: set
         VkCommandBuffer  m_current_command_buffer;
-        uint8_t*         m_p_current_frame_index {nullptr};
+        uint32_t*        m_p_current_frame_index {nullptr};
         VkCommandPool*   m_p_command_pools {nullptr};
         VkCommandBuffer* m_p_command_buffers {nullptr};
         VkViewport       m_viewport;
         VkRect2D         m_scissor;
+
+        float m_content_sizes[4];
 
         uint32_t m_current_swapchain_image_index;
 

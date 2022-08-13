@@ -40,8 +40,8 @@ namespace Piccolo
         {
             _mesh_inefficient_pick_perframe_storage_buffer_object.proj_view_matrix =
                 vulkan_resource->m_mesh_inefficient_pick_perframe_storage_buffer_object.proj_view_matrix;
-            _mesh_inefficient_pick_perframe_storage_buffer_object.rt_width  = m_vulkan_rhi->m_swapchain_extent.width;
-            _mesh_inefficient_pick_perframe_storage_buffer_object.rt_height = m_vulkan_rhi->m_swapchain_extent.height;
+            _mesh_inefficient_pick_perframe_storage_buffer_object.rt_width  = (uint32_t)m_vulkan_rhi->m_viewport.width;
+            _mesh_inefficient_pick_perframe_storage_buffer_object.rt_height = (uint32_t)m_vulkan_rhi->m_viewport.height;
         }
     }
     void PickPass::draw() {}
@@ -52,8 +52,8 @@ namespace Piccolo
 
         VulkanUtil::createImage(m_vulkan_rhi->m_physical_device,
                                 m_vulkan_rhi->m_device,
-                                m_vulkan_rhi->m_swapchain_extent.width,
-                                m_vulkan_rhi->m_swapchain_extent.height,
+                                (uint32_t)m_vulkan_rhi->m_viewport.width,
+                                (uint32_t)m_vulkan_rhi->m_viewport.height,
                                 m_framebuffer.attachments[0].format,
                                 VK_IMAGE_TILING_OPTIMAL,
                                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
@@ -133,8 +133,8 @@ namespace Piccolo
         framebuffer_create_info.renderPass      = m_framebuffer.render_pass;
         framebuffer_create_info.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
         framebuffer_create_info.pAttachments    = attachments;
-        framebuffer_create_info.width           = m_vulkan_rhi->m_swapchain_extent.width;
-        framebuffer_create_info.height          = m_vulkan_rhi->m_swapchain_extent.height;
+        framebuffer_create_info.width           = (uint32_t)m_vulkan_rhi->m_viewport.width;
+        framebuffer_create_info.height          = (uint32_t)m_vulkan_rhi->m_viewport.height;
         framebuffer_create_info.layers          = 1;
 
         if (vkCreateFramebuffer(m_vulkan_rhi->m_device, &framebuffer_create_info, nullptr, &m_framebuffer.framebuffer) !=
@@ -430,12 +430,13 @@ namespace Piccolo
     }
     uint32_t PickPass::pick(const Vector2& picked_uv)
     {
+        return 0;//TODO
         uint32_t pixel_x =
             static_cast<uint32_t>(picked_uv.x * m_vulkan_rhi->m_viewport.width + m_vulkan_rhi->m_viewport.x);
         uint32_t pixel_y =
             static_cast<uint32_t>(picked_uv.y * m_vulkan_rhi->m_viewport.height + m_vulkan_rhi->m_viewport.y);
-        uint32_t picked_pixel_index = m_vulkan_rhi->m_swapchain_extent.width * pixel_y + pixel_x;
-        if (pixel_x >= m_vulkan_rhi->m_swapchain_extent.width || pixel_y >= m_vulkan_rhi->m_swapchain_extent.height)
+        uint32_t picked_pixel_index = (uint32_t)m_vulkan_rhi->m_viewport.width * pixel_y + pixel_x;
+        if (pixel_x >= (uint32_t)m_vulkan_rhi->m_viewport.width || pixel_y >= (uint32_t)m_vulkan_rhi->m_viewport.height)
             return 0;
 
         struct MeshNode
@@ -527,7 +528,8 @@ namespace Piccolo
         renderpass_begin_info.renderPass        = m_framebuffer.render_pass;
         renderpass_begin_info.framebuffer       = m_framebuffer.framebuffer;
         renderpass_begin_info.renderArea.offset = {0, 0};
-        renderpass_begin_info.renderArea.extent = m_vulkan_rhi->m_swapchain_extent;
+        renderpass_begin_info.renderArea.extent = {(uint32_t)m_vulkan_rhi->m_viewport.width,
+                                                   (uint32_t)m_vulkan_rhi->m_viewport.height};
 
         VkClearColorValue color_value         = {0, 0, 0, 0};
         VkClearValue      clearValues[2]      = {color_value, {1.0f, 0}};
@@ -780,9 +782,9 @@ namespace Piccolo
         region.imageSubresource.baseArrayLayer = 0;
         region.imageSubresource.layerCount     = 1;
         region.imageOffset                     = {0, 0, 0};
-        region.imageExtent = {m_vulkan_rhi->m_swapchain_extent.width, m_vulkan_rhi->m_swapchain_extent.height, 1};
+        region.imageExtent = {(uint32_t)m_vulkan_rhi->m_viewport.width, (uint32_t)m_vulkan_rhi->m_viewport.height, 1};
 
-        uint32_t       buffer_size = m_vulkan_rhi->m_swapchain_extent.width * m_vulkan_rhi->m_swapchain_extent.height * 4;
+        uint32_t buffer_size = (uint32_t)m_vulkan_rhi->m_viewport.width * (uint32_t)m_vulkan_rhi->m_viewport.height * 4;
         VkBuffer       inefficient_staging_buffer;
         VkDeviceMemory inefficient_staging_buffer_memory;
         VulkanUtil::createBuffer(m_vulkan_rhi->m_physical_device,

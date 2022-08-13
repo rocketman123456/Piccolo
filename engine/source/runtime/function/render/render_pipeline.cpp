@@ -90,9 +90,9 @@ namespace Piccolo
             _main_camera_pass->getFramebufferImageViews()[_main_camera_pass_backup_buffer_even];
         m_combine_ui_pass->initialize(&combine_ui_init_info);
 
-        PickPassInitInfo pick_init_info;
-        pick_init_info.per_mesh_layout = descriptor_layouts[MainCameraPass::LayoutType::_per_mesh];
-        m_pick_pass->initialize(&pick_init_info);
+        // PickPassInitInfo pick_init_info;
+        // pick_init_info.per_mesh_layout = descriptor_layouts[MainCameraPass::LayoutType::_per_mesh];
+        // m_pick_pass->initialize(&pick_init_info);
 
         FXAAPassInitInfo fxaa_init_info;
         fxaa_init_info.render_pass = _main_camera_pass->getRenderPass();
@@ -151,9 +151,9 @@ namespace Piccolo
 
         vulkan_resource->resetRingBufferOffset(vulkan_rhi->m_current_frame_index);
 
-        vulkan_rhi->waitForFences();
+        // vulkan_rhi->waitForFences();
 
-        vulkan_rhi->resetCommandPool();
+        // vulkan_rhi->resetCommandPool();
 
         bool recreate_swapchain =
             vulkan_rhi->prepareBeforePass(std::bind(&RenderPipeline::passUpdateAfterRecreateSwapchain, this));
@@ -204,7 +204,7 @@ namespace Piccolo
         combine_ui_pass.updateAfterFramebufferRecreate(
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd],
             main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
-        pick_pass.recreateFramebuffer();
+        // pick_pass.recreateFramebuffer();
     }
 
     uint32_t RenderPipeline::getGuidOfPickedMesh(const Vector2& picked_uv)
@@ -223,5 +223,10 @@ namespace Piccolo
     {
         MainCameraPass& main_camera_pass = *(static_cast<MainCameraPass*>(m_main_camera_pass.get()));
         main_camera_pass.m_selected_axis = selected_axis;
+    }
+
+    void* RenderPipeline::getRenderContentImage() const
+    {
+        return static_cast<MainCameraPass*>(m_main_camera_pass.get())->getGuiImage();
     }
 } // namespace Piccolo

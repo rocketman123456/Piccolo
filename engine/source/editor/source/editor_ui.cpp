@@ -564,7 +564,7 @@ namespace Piccolo
     void EditorUI::showEditorGameWindow(bool* p_open)
     {
         ImGuiIO&         io           = ImGui::GetIO();
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_MenuBar;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
 
         const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 
@@ -669,20 +669,12 @@ namespace Piccolo
                                g_editor_global_context.m_input_manager->getCameraSpeed());
         }
 
-        auto menu_bar_rect = ImGui::GetCurrentWindow()->MenuBarRect();
-        float menu_bar_y = menu_bar_rect.GetHeight();
+        auto avail = ImGui::GetContentRegionAvail();
+        avail.y -= 27; // resize grip size
+        ImGui::Image((ImTextureID)g_runtime_global_context.m_render_system->getRenderContentImage(), avail);
 
         Vector2 new_window_pos  = {0.0f, 0.0f};
-        Vector2 new_window_size = {0.0f, 0.0f};
-        //new_window_pos.x        = ImGui::GetCurrentWindow()->Pos.x - ImGui::GetWindowViewport()->WorkPos.x;// - ImGui::GetMainViewport()->Pos.x;// ImGui::GetWindowPos().x;
-        //new_window_pos.y        = ImGui::GetCurrentWindow()->Pos.y - ImGui::GetWindowViewport()->WorkPos.y + menu_bar_y;// - ImGui::GetMainViewport()->Pos.y;//ImGui::GetWindowPos().y + menu_bar_rect.Min.y;
-        //new_window_size.x       = ImGui::GetWindowSize().x;
-        //new_window_size.y       = ImGui::GetWindowSize().y - menu_bar_y;// - menu_bar_rect.Min.y;
-
-        new_window_pos.x        = ImGui::GetWindowPos().x;
-        new_window_pos.y        = ImGui::GetWindowPos().y + menu_bar_rect.Min.y;
-        new_window_size.x       = ImGui::GetWindowSize().x;
-        new_window_size.y       = ImGui::GetWindowSize().y - menu_bar_rect.Min.y;
+        Vector2 new_window_size = {avail.x, avail.y};
 
         // if (new_window_pos != m_engine_window_pos || new_window_size != m_engine_window_size)
         {
@@ -820,7 +812,7 @@ namespace Piccolo
 
         // load font for imgui
         ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;// | ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
         io.ConfigDockingAlwaysTabBar         = true;
         io.ConfigWindowsMoveFromTitleBarOnly = true;
         io.Fonts->AddFontFromFileTTF(

@@ -181,7 +181,6 @@ namespace Piccolo
         pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
         pipelineInfo.layout              = m_render_pipelines[0].layout;
         pipelineInfo.renderPass          = m_framebuffer.render_pass;
-        pipelineInfo.subpass             = _main_camera_subpass_combine_ui;
         pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
         pipelineInfo.pDynamicState       = &dynamic_state_create_info;
 
@@ -269,11 +268,11 @@ namespace Piccolo
 
         VkViewport viewport = {0.0,
                                0.0,
-                               static_cast<float>(m_vulkan_rhi->m_swapchain_extent.width),
-                               static_cast<float>(m_vulkan_rhi->m_swapchain_extent.height),
+                               static_cast<float>((uint32_t)m_vulkan_rhi->m_viewport.width),
+                               static_cast<float>((uint32_t)m_vulkan_rhi->m_viewport.height),
                                0.0,
                                1.0};
-        VkRect2D   scissor  = {0, 0, m_vulkan_rhi->m_swapchain_extent.width, m_vulkan_rhi->m_swapchain_extent.height};
+        VkRect2D scissor = {0, 0, (uint32_t)m_vulkan_rhi->m_viewport.width, (uint32_t)m_vulkan_rhi->m_viewport.height};
 
         m_vulkan_rhi->m_vk_cmd_bind_pipeline(
             m_vulkan_rhi->m_current_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_render_pipelines[0].pipeline);
