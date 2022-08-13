@@ -33,6 +33,7 @@ namespace Piccolo
 
         void             initializeUIRenderBackend(WindowUI* window_ui);
         virtual uint32_t getGuidOfPickedMesh(const Vector2& picked_uv) = 0;
+        virtual void*    getRenderContentImage() const                 = 0;
 
     protected:
         std::shared_ptr<RHI> m_rhi;

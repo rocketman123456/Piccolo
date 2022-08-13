@@ -94,7 +94,7 @@ namespace Piccolo
         processSwapData();
 
         // prepare render command context
-        m_rhi->prepareContext();
+        // m_rhi->prepareContext();
 
         // update per-frame buffer
         m_render_resource->updatePerFrameBuffer(m_render_scene, m_render_camera);
@@ -129,12 +129,10 @@ namespace Piccolo
 
     void RenderSystem::updateEngineContentViewport(float offset_x, float offset_y, float width, float height)
     {
-        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_viewport.x        = offset_x;
-        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_viewport.y        = offset_y;
-        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_viewport.width    = width;
-        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_viewport.height   = height;
-        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_viewport.minDepth = 0.0f;
-        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_viewport.maxDepth = 1.0f;
+        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_content_sizes[0]   = offset_x;
+        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_content_sizes[1]   = offset_y;
+        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_content_sizes[2]   = width;
+        std::static_pointer_cast<VulkanRHI>(m_rhi)->m_content_sizes[3]   = height;
 
         m_render_camera->setAspect(width / height);
     }
@@ -156,6 +154,11 @@ namespace Piccolo
     GObjectID RenderSystem::getGObjectIDByMeshID(uint32_t mesh_id) const
     {
         return m_render_scene->getGObjectIDByMeshID(mesh_id);
+    }
+
+    void* RenderSystem::getRenderContentImage() const 
+    { 
+        return m_render_pipeline->getRenderContentImage();
     }
 
     void RenderSystem::createAxis(std::array<RenderEntity, 3> axis_entities, std::array<RenderMeshData, 3> mesh_datas)

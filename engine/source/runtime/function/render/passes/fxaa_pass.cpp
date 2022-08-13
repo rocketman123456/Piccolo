@@ -252,8 +252,8 @@ namespace Piccolo
 
         VkViewport viewport = {0.0,
                                0.0,
-                               static_cast<float>(m_vulkan_rhi->m_swapchain_extent.width),
-                               static_cast<float>(m_vulkan_rhi->m_swapchain_extent.height),
+                               static_cast<float>((uint32_t)m_vulkan_rhi->m_viewport.width),
+                               static_cast<float>((uint32_t)m_vulkan_rhi->m_viewport.height),
                                0.0,
                                1.0};
         int32_t    x        = static_cast<int32_t>(m_vulkan_rhi->m_viewport.x);

@@ -11,6 +11,9 @@
 
 #include <cassert>
 
+extern ImGui_ImplVulkanH_Window g_MainWindowData;
+extern int                      g_MinImageCount;
+
 namespace Piccolo
 {
     void UIPass::initialize(const RenderPassInitInfo* init_info)
@@ -32,13 +35,13 @@ namespace Piccolo
         init_info.QueueFamily               = m_vulkan_rhi->m_queue_indices.m_graphics_family.value();
         init_info.Queue                     = m_vulkan_rhi->m_graphics_queue;
         init_info.DescriptorPool            = m_vulkan_rhi->m_descriptor_pool;
-        init_info.Subpass                   = _main_camera_subpass_ui;
+        init_info.Subpass                   = 0;
 
         // may be different from the real swapchain image count
         // see ImGui_ImplVulkanH_GetMinImageCountFromPresentMode
-        init_info.MinImageCount = 3;
-        init_info.ImageCount    = 3;
-        ImGui_ImplVulkan_Init(&init_info, m_framebuffer.render_pass);
+        init_info.MinImageCount = g_MinImageCount;
+        init_info.ImageCount    = g_MainWindowData.ImageCount;
+        ImGui_ImplVulkan_Init(&init_info, g_MainWindowData.RenderPass);
 
         uploadFonts();
     }

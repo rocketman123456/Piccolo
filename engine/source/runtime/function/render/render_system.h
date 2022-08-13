@@ -50,6 +50,7 @@ namespace Piccolo
         void      updateEngineContentViewport(float offset_x, float offset_y, float width, float height);
         uint32_t  getGuidOfPickedMesh(const Vector2& picked_uv);
         GObjectID getGObjectIDByMeshID(uint32_t mesh_id) const;
+        void*     getRenderContentImage() const;
 
         EngineContentViewport getEngineContentViewport() const;
 

@@ -25,9 +25,12 @@ namespace Piccolo
         virtual void setCommonInfo(RenderPassCommonInfo common_info);
         virtual void preparePassData(std::shared_ptr<RenderResourceBase> render_resource);
         virtual void initializeUIRenderBackend(WindowUI* window_ui);
+        virtual void* getGuiImage();
 
     protected:
         std::shared_ptr<RHI>                m_rhi;
         std::shared_ptr<RenderResourceBase> m_render_resource;
+
+        void* m_gui_image {nullptr};
     };
 } // namespace Piccolo

@@ -72,6 +72,8 @@ namespace Piccolo
                          CombineUIPass&    combine_ui_pass,
                          uint32_t          current_swapchain_image_index);
 
+        void* getGuiImage() override final;
+
         VkImageView m_point_light_shadow_color_image_view;
         VkImageView m_directional_light_shadow_color_image_view;
 

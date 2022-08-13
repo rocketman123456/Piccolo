@@ -23,10 +23,10 @@ namespace Piccolo
         _main_camera_pass_post_process_buffer_odd       = 5,
         _main_camera_pass_post_process_buffer_even      = 6,
         _main_camera_pass_depth                         = 7,
-        _main_camera_pass_swap_chain_image              = 8,
+        //_main_camera_pass_swap_chain_image              = 8,
         _main_camera_pass_custom_attachment_count       = 5,
         _main_camera_pass_post_process_attachment_count = 2,
-        _main_camera_pass_attachment_count              = 9,
+        _main_camera_pass_attachment_count              = 8,
     };
 
     enum
@@ -38,7 +38,7 @@ namespace Piccolo
         _main_camera_subpass_color_grading,
         _main_camera_subpass_fxaa,
         _main_camera_subpass_ui,
-        _main_camera_subpass_combine_ui,
+        //_main_camera_subpass_combine_ui,
         _main_camera_subpass_count
     };
 
