@@ -2,16 +2,22 @@
 
 #include "runtime/core/base/macro.h"
 
-#include "runtime/function/character/character.h"
-#include "runtime/function/controller/character_controller.h"
 #include "runtime/function/framework/component/animation/animation_component.h"
 #include "runtime/function/framework/component/camera/camera_component.h"
+#include "runtime/function/framework/component/rigidbody/rigidbody_component.h"
 #include "runtime/function/framework/component/transform/transform_component.h"
+
 #include "runtime/function/framework/level/level.h"
 #include "runtime/function/framework/object/object.h"
+
 #include "runtime/function/framework/world/world_manager.h"
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/input/input_system.h"
+#include "runtime/function/physics/physics_manager.h"
+
+#include "runtime/function/character/character.h"
+#include "runtime/function/controller/character_controller.h"
+#include "runtime/function/physics/jolt/utils.h"
 #include "runtime/function/physics/physics_scene.h"
 
 namespace Piccolo

@@ -20,6 +20,8 @@ namespace Piccolo
         void updateGlobalTransform(const Transform& transform, bool is_scale_dirty);
         void getShapeBoundingBoxes(std::vector<AxisAlignedBox> & out_boudning_boxes) const;
 
+        uint32_t getRigidBodyId() const { return m_rigidbody_id; }
+
     protected:
         void createRigidBody(const Transform& global_transform);
         void removeRigidBody();

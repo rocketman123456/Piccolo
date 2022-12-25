@@ -51,6 +51,8 @@ namespace Piccolo
         Quaternion      camera_rotate = editor_camera->rotation().inverse();
         Vector3         camera_relative_pos(0, 0, 0);
 
+        // TODO : after process, maybe should clear command for next tick
+
         if ((unsigned int)EditorCommand::camera_foward & m_editor_command)
         {
             camera_relative_pos += camera_rotate * Vector3 {0, camera_speed, 0};

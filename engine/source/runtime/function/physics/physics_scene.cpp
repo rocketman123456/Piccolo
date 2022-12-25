@@ -24,10 +24,15 @@
 #include "Jolt/Physics/Collision/Shape/BoxShape.h"
 #include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
 #include "Jolt/Physics/Collision/Shape/CompoundShapeVisitors.h"
+#include "Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h"
 #include "Jolt/Physics/Collision/Shape/SphereShape.h"
 #include "Jolt/Physics/Collision/Shape/StaticCompoundShape.h"
 #include "Jolt/Physics/Collision/ShapeCast.h"
 #include "Jolt/Physics/PhysicsSystem.h"
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Character/Character.h>
+#include <Jolt/Physics/Character/CharacterVirtual.h>
 
 namespace Piccolo
 {
@@ -44,6 +49,8 @@ namespace Piccolo
         m_physics.m_jolt_job_system =
             new JPH::JobSystemThreadPool(m_config.m_max_job_count, m_config.m_max_barrier_count, static_cast<int>(m_config.m_max_concurrent_job_count));
 
+        // TODO : care memory allocator in newer jolt
+
         // 16M temp memory
         m_physics.m_temp_allocator = new JPH::TempAllocatorImpl(16 * 1024 * 1024);
 
@@ -59,6 +66,8 @@ namespace Piccolo
 
         m_physics.m_jolt_physics_system->SetGravity(toVec3(gravity));
         m_config.m_gravity = gravity;
+
+        m_physics.m_body_interface = &m_physics.m_jolt_physics_system->GetBodyInterface();
     }
 
     PhysicsScene::~PhysicsScene()
@@ -144,6 +153,32 @@ namespace Piccolo
     }
 
     void PhysicsScene::removeRigidBody(uint32_t body_id) { m_pending_remove_bodies.push_back(body_id); }
+
+    JPH::Character* PhysicsScene::createCharacter()
+    {
+        // auto id = rigidbody_component->getRigidBodyId();
+        JPH::BodyInterface& body_interface = m_physics.m_jolt_physics_system->GetBodyInterface();
+
+        auto physics_system = m_physics.m_jolt_physics_system;
+
+        // TODO : use asset shape
+        auto shape = JPH::RotatedTranslatedShapeSettings(JPH::Vec3(0, 0.5f * 1.35 + 0.3f, 0), JPH::Quat::sIdentity(), new JPH::CapsuleShape(0.5f * 1.35f, 0.3f))
+                         .Create()
+                         .Get();
+
+        JPH::CharacterSettings* settings = new JPH::CharacterSettings();
+        settings->mMaxSlopeAngle         = JPH::DegreesToRadians(45.0f);
+        settings->mLayer                 = Layers::MOVING;
+        settings->mShape                 = shape;
+        settings->mFriction              = 0.5f;
+
+        JPH::Character* character = new JPH::Character(settings, JPH::Vec3::sZero(), JPH::Quat::sIdentity(), 0, physics_system);
+        character->AddToPhysicsSystem(JPH::EActivation::Activate);
+
+        return character;
+    }
+
+    void PhysicsScene::removeCharacter(JPH::Character* body) { m_pending_remove_bodies.push_back(body->GetBodyID().GetIndexAndSequenceNumber()); }
 
     void PhysicsScene::updateRigidBodyGlobalTransform(uint32_t body_id, const Transform& global_transform)
     {

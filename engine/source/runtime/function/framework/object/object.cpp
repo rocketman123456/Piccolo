@@ -51,12 +51,12 @@ namespace Piccolo
 
     bool GObject::hasComponent(const std::string& compenent_type_name) const
     {
+        // FIXME : cannot create two component of same type
         for (const auto& component : m_components)
         {
             if (component.getTypeName() == compenent_type_name)
                 return true;
         }
-
         return false;
     }
 
@@ -89,7 +89,7 @@ namespace Piccolo
         for (auto loaded_component : definition_res.m_components)
         {
             const std::string type_name = loaded_component.getTypeName();
-            // don't create component if it has been instanced
+            // don't create component if it has been instanced -- FIXME
             if (hasComponent(type_name))
                 continue;
 

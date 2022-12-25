@@ -68,7 +68,7 @@ namespace Piccolo
     template<typename T>
     T LuaComponent::get(std::weak_ptr<GObject> game_object, const char* name)
     {
-        LOG_INFO(name);
+        // LOG_INFO(name);
         Reflection::FieldAccessor field_accessor;
         void*                     target_instance;
         if (find_component_field(game_object, name, field_accessor, target_instance))
@@ -84,8 +84,7 @@ namespace Piccolo
 
     void LuaComponent::invoke(std::weak_ptr<GObject> game_object, const char* name)
     {
-        LOG_INFO(name);
-
+        // LOG_INFO(name);
         Reflection::TypeMeta meta;
 
         void*       target_instance = nullptr;
