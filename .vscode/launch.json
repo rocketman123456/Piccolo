@@ -17,15 +17,11 @@
         },
         {
             "name": "(macosx) PiccoloEditor",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/bin/PiccoloEditor",
             "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb"
-        },
+            "cwd": "${workspaceFolder}/bin"
+        }
     ]
 }
