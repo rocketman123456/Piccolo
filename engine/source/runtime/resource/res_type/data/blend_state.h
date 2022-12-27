@@ -80,16 +80,7 @@ namespace Piccolo
         std::vector<float>       m_blend_ratio;
 
         virtual ~BlendState() override {}
-        virtual float getLength() const override
-        {
-            float length = 0;
-            for (int i = 0; i < m_clip_count; i++)
-            {
-                auto curweight = m_blend_weight[i];
-                length += curweight * m_blend_clip_file_length[i];
-            }
-            return length;
-        }
+        virtual float getLength() const override;
     };
 
     REFLECTION_TYPE(BlendSpace1D)

@@ -26,7 +26,6 @@ namespace Piccolo
         States m_state {States::_idle};
 
     public:
-        AnimationFSM();
         bool        update(const json11::Json::object& signals);
         std::string getCurrentClipBaseName() const;
     };

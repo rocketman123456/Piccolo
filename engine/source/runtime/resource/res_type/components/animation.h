@@ -8,7 +8,6 @@
 
 namespace Piccolo
 {
-
     REFLECTION_TYPE(AnimationResultElement)
     CLASS(AnimationResultElement, WhiteListFields)
     {

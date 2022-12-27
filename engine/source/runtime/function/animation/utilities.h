@@ -1,5 +1,7 @@
 #pragma once
 
+#include <json11.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -26,4 +28,8 @@ namespace Piccolo
     Bone*                    find_by_index(Bone* bones, int key, int size, bool is_flat = false);
     std::shared_ptr<RawBone> find_by_index(std::vector<std::shared_ptr<RawBone>>& bones, int key, bool is_flat = false);
     int                      find_index_by_name(const SkeletonData& skeleton, const std::string& name);
+
+    float       tryGetFloat(const json11::Json::object& json, const std::string& key, float default_value);
+    bool        tryGetBool(const json11::Json::object& json, const std::string& key, float default_value);
+    std::string tryGetString(const json11::Json::object& json, const std::string& key, const std::string& default_value);
 } // namespace Piccolo

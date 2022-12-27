@@ -1,9 +1,9 @@
 #include "runtime/function/animation/animation_system.h"
 
-#include "resource/res_type/data/skeleton_mask.h"
-
+#include "runtime/core/base/macro.h"
 #include "runtime/function/animation/animation_loader.h"
 #include "runtime/function/animation/skeleton.h"
+#include "resource/res_type/data/skeleton_mask.h"
 
 namespace Piccolo
 {
@@ -142,13 +142,12 @@ namespace Piccolo
             }
             if (fabs(sum_weight) < 0.0001f)
             {
-                // LOG_ERROR
+                LOG_ERROR("animation bone blend weight too small");
             }
             for (size_t clip_index = 0; clip_index < blend_state.m_clip_count; clip_index++)
             {
                 if (blend_masks[clip_index]->m_enabled[bone_index])
                 {
-
                     blend_state_with_clip_data.m_blend_weight[clip_index].m_blend_weight[bone_index] = blend_state.m_blend_weight[clip_index] / sum_weight;
                 }
                 else

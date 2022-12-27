@@ -50,4 +50,34 @@ namespace Piccolo
             return it->m_index;
         return std::numeric_limits<int>::max();
     }
+
+    float tryGetFloat(const json11::Json::object& json, const std::string& key, float default_value)
+    {
+        auto found_iter = json.find(key);
+        if (found_iter != json.end() && found_iter->second.is_number())
+        {
+            return found_iter->second.number_value();
+        }
+        return default_value;
+    }
+
+    bool tryGetBool(const json11::Json::object& json, const std::string& key, float default_value)
+    {
+        auto found_iter = json.find(key);
+        if (found_iter != json.end() && found_iter->second.is_bool())
+        {
+            return found_iter->second.bool_value();
+        }
+        return default_value;
+    }
+
+    std::string tryGetString(const json11::Json::object& json, const std::string& key, const std::string& default_value)
+    {
+        auto found_iter = json.find(key);
+        if (found_iter != json.end() && found_iter->second.is_string())
+        {
+            return found_iter->second.string_value();
+        }
+        return default_value;
+    }
 } // namespace Piccolo
