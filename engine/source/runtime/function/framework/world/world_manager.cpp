@@ -47,13 +47,13 @@ namespace Piccolo
     void WorldManager::setCurrentWorld(const std::string& world_url)
     {
         m_current_world_url = world_url;
-        m_is_world_loaded   = false;
+        //m_is_world_loaded   = false;
     }
 
     void WorldManager::setCurrentLevel(const std::string& level_url)
     {
         m_current_level_url = level_url;
-        m_is_world_loaded   = false;
+        //m_is_world_loaded   = false;
     }
 
     void WorldManager::tick(float delta_time)
@@ -94,6 +94,7 @@ namespace Piccolo
         }
 
         m_current_world_resource = std::make_shared<WorldRes>(world_res);
+        // Use Default World Level
         if (m_current_level_url.size() == 0)
         {
             m_current_level_url = world_res.m_default_level_url;
@@ -129,7 +130,6 @@ namespace Piccolo
         }
 
         m_loaded_levels.emplace(level_url, level);
-
         return true;
     }
 
@@ -146,15 +146,15 @@ namespace Piccolo
         active_level->unload();
         m_loaded_levels.erase(level_url);
 
-        const bool is_load_success = loadLevel(level_url);
+        const bool is_load_success = loadLevel(m_current_level_url);
         if (!is_load_success)
         {
-            LOG_ERROR("load level failed {}", level_url);
+            LOG_ERROR("load level failed {}", m_current_level_url);
             return;
         }
 
         // update the active level instance
-        auto iter = m_loaded_levels.find(level_url);
+        auto iter = m_loaded_levels.find(m_current_level_url);
         ASSERT(iter != m_loaded_levels.end());
 
         m_current_active_level = iter->second;

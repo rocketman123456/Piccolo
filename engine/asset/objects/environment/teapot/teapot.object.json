@@ -28,8 +28,8 @@
                 "mesh_res": {
                     "sub_meshes": [
                         {
-                            "material": "asset/objects/basic/teapot/material/teapot.material.json",
-                            "obj_file_ref": "asset/objects/basic/teapot/mesh/teapot.obj",
+                            "material": "asset/objects/environment/teapot/components/material/teapot.material.json",
+                            "obj_file_ref": "asset/objects/environment/teapot/components/mesh/teapot.obj",
                             "transform": {
                                 "position": {
                                     "x": 0,

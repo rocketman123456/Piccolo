@@ -3230,18 +3230,24 @@ namespace Piccolo
 
     void VulkanRHI::destroyBuffer(RHIBuffer*& buffer)
     {
+        if(buffer == nullptr)
+            return;
         vkDestroyBuffer(m_device, ((VulkanBuffer*)buffer)->getResource(), nullptr);
         RHI_DELETE_PTR(buffer);
     }
 
     void VulkanRHI::freeCommandBuffers(RHICommandPool* commandPool, uint32_t commandBufferCount, RHICommandBuffer* pCommandBuffers)
     {
+        if(commandPool == nullptr || pCommandBuffers == nullptr)
+            return;
         VkCommandBuffer vk_command_buffer = ((VulkanCommandBuffer*)pCommandBuffers)->getResource();
         vkFreeCommandBuffers(m_device, ((VulkanCommandPool*)commandPool)->getResource(), commandBufferCount, &vk_command_buffer);
     }
 
     void VulkanRHI::freeMemory(RHIDeviceMemory*& memory)
     {
+        if(memory == nullptr)
+            return;
         vkFreeMemory(m_device, ((VulkanDeviceMemory*)memory)->getResource(), nullptr);
         RHI_DELETE_PTR(memory);
     }

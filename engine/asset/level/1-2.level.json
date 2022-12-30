@@ -7,35 +7,6 @@
   "character_name": "Player",
   "objects": [
     {
-      "name": "Emitter",
-      "instanced_components": [
-        {
-          "$typeName": "TransformComponent",
-          "$context": {
-            "transform": {
-              "position": {
-                "x": 32,
-                "y": 11,
-                "z": 3
-              },
-              "rotation": {
-                "w": 0.46944212913513184,
-                "x": 0,
-                "y": 0,
-                "z": 0.88296324014663696
-              },
-              "scale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
-            }
-          }
-        }
-      ],
-      "definition": "asset/objects/environment/particle/particle.object.json"
-    },
-    {
       "name": "Player",
       "instanced_components": [
         {
@@ -95,7 +66,7 @@
     },
     {
       "name": "Teapot_1",
-      "definition": "asset/objects/basic/teapot/teapot.object.json",
+      "definition": "asset/objects/environment/teapot/teapot.object.json",
       "instanced_components": [
         {
           "$context": {

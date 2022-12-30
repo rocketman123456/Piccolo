@@ -315,6 +315,21 @@ namespace Piccolo
                     g_runtime_global_context.m_render_system->clearForLevelReloading();
                     g_editor_global_context.m_scene_manager->onGObjectSelected(k_invalid_gobject_id);
                 }
+                if (ImGui::BeginMenu("Reload Selected Level"))
+                {
+                    std::shared_ptr<WorldRes> world = g_runtime_global_context.m_world_manager->getCurrentActiveWorldRes();
+                    for(auto level_url : world->m_level_urls)
+                    {
+                        if (ImGui::MenuItem(level_url.c_str()))
+                        {
+                            g_runtime_global_context.m_world_manager->setCurrentLevel(level_url);
+                            g_runtime_global_context.m_world_manager->reloadCurrentLevel();
+                            g_runtime_global_context.m_render_system->clearForLevelReloading();
+                            g_editor_global_context.m_scene_manager->onGObjectSelected(k_invalid_gobject_id);
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
                 if (ImGui::MenuItem("Save Current Level"))
                 {
                     g_runtime_global_context.m_world_manager->saveCurrentLevel();

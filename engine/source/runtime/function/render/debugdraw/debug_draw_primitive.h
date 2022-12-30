@@ -31,6 +31,7 @@ namespace Piccolo
         _debug_draw_primitive_type_text,
         k_debug_draw_primitive_type_count
     };
+
     enum FillMode : uint8_t
     {
         _FillMode_wireframe = 0,

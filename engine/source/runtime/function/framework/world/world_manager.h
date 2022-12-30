@@ -27,9 +27,10 @@ namespace Piccolo
         void setCurrentWorld(const std::string& world_url);
         void setCurrentLevel(const std::string& level_url);
 
-        void                 tick(float delta_time);
-        std::weak_ptr<Level> getCurrentActiveLevel() const { return m_current_active_level; }
+        void tick(float delta_time);
 
+        std::weak_ptr<Level>        getCurrentActiveLevel() const { return m_current_active_level; }
+        std::shared_ptr<WorldRes>   getCurrentActiveWorldRes() const { return m_current_world_resource; }
         std::weak_ptr<PhysicsScene> getCurrentActivePhysicsScene() const;
 
     private:

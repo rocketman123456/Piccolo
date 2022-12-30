@@ -14,7 +14,7 @@ namespace Piccolo
         };
         struct GameObject
         {
-            bool show_bounding_box = true;
+            bool show_bounding_box = false;
         };
 
         Animation  animation;
