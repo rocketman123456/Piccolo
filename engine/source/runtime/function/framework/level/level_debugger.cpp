@@ -17,26 +17,16 @@ namespace Piccolo
     void LevelDebugger::tick(std::shared_ptr<Level> level) const
     {
         if (g_is_editor_mode)
-        {
             return;
-        }
 
         if (g_runtime_global_context.m_render_debug_config->animation.show_bone_name)
-        {
             showAllBonesName(level);
-        }
         if (g_runtime_global_context.m_render_debug_config->animation.show_skeleton)
-        {
             showAllBones(level);
-        }
         if (g_runtime_global_context.m_render_debug_config->gameObject.show_bounding_box)
-        {
             showAllBoundingBox(level);
-        }
         if (g_runtime_global_context.m_render_debug_config->camera.show_runtime_info)
-        {
             showCameraInfo(level);
-        }
     }
 
     void LevelDebugger::showAllBones(std::shared_ptr<Level> level) const
@@ -89,6 +79,7 @@ namespace Piccolo
         std::shared_ptr<GObject> gobject = level->getCurrentActiveCharacter().lock()->getObject().lock();
         drawCameraInfo(gobject);
     }
+
     void LevelDebugger::drawBones(std::shared_ptr<GObject> object) const
     {
         const TransformComponent* transform_component = object->tryGetComponentConst<TransformComponent>("TransformComponent");

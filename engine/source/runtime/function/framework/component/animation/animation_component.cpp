@@ -18,12 +18,6 @@ namespace Piccolo
 
     void AnimationComponent::tick(float delta_time)
     {
-        // m_animation_res.m_blend_state.m_blend_ratio[0] += (delta_time / m_animation_res.m_blend_state.m_blend_clip_file_length[0]);
-        // m_animation_res.m_blend_state.m_blend_ratio[0] -= floor(m_animation_res.m_blend_state.m_blend_ratio[0]);
-
-        // m_skeleton.applyAnimation(AnimationManager::getBlendStateWithClipData(m_animation_res.m_blend_state));
-        // m_animation_res.m_animation_result = m_skeleton.outputAnimationResult();
-
         if ((m_tick_in_editor_mode == false) && g_is_editor_mode)
             return;
         std::string name = m_animation_fsm.getCurrentClipBaseName();

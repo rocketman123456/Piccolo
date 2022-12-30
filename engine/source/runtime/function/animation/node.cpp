@@ -6,10 +6,7 @@ namespace Piccolo
 {
     //-----------------------------------------------------------------------
     Node::Node(const std::string name) { m_name = name; }
-    Node::~Node()
-    {
-        // clear();
-    }
+    Node::~Node() { clear(); }
     //-----------------------------------------------------------------------
     void Node::clear() {}
     //-----------------------------------------------------------------------
@@ -115,13 +112,9 @@ namespace Piccolo
             case TransformSpace::_object:
                 // position is relative to parent so transform upwards
                 if (m_parent)
-                {
                     m_position = m_position + (m_parent->_getDerivedOrientation().inverse() * d) / m_parent->_getDerivedScale();
-                }
                 else
-                {
                     m_position = m_position + d;
-                }
                 break;
             case TransformSpace::_aren:
                 m_position = m_position + d;
