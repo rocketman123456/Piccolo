@@ -4,11 +4,11 @@
 #include "runtime/resource/res_type/components/rigid_body.h"
 #include "runtime/resource/res_type/data/basic_shape.h"
 
-namespace JPH
-{
-    class Character;
-    class CharacterVirtual;
-} // namespace JPH
+// namespace JPH
+// {
+//     class Character;
+//     class CharacterVirtual;
+// } // namespace JPH
 
 namespace Piccolo
 {
@@ -45,6 +45,6 @@ namespace Piccolo
         Capsule        m_capsule;
         RigidBodyShape m_rigidbody_shape;
 
-        JPH::Character* m_character;
+        // JPH::Character* m_character;
     };
 } // namespace Piccolo

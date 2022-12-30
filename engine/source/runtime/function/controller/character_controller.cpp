@@ -7,11 +7,11 @@
 #include "runtime/function/global/global_context.h"
 #include "runtime/function/physics/physics_scene.h"
 
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/PhysicsScene.h>
-#include <Jolt/Physics/Character/CharacterBase.h>
-#include <Jolt/Physics/Character/Character.h>
-#include <Jolt/Physics/Character/CharacterVirtual.h>
+// #include <Jolt/Jolt.h>
+// #include <Jolt/Physics/PhysicsScene.h>
+// #include <Jolt/Physics/Character/CharacterBase.h>
+// #include <Jolt/Physics/Character/Character.h>
+// #include <Jolt/Physics/Character/CharacterVirtual.h>
 
 namespace Piccolo
 {
@@ -28,18 +28,18 @@ namespace Piccolo
 
         m_rigidbody_shape.m_local_transform = Transform(Vector3(0, 0, capsule.m_half_height + capsule.m_radius), orientation, Vector3::UNIT_SCALE);
 
-        std::shared_ptr<PhysicsScene> physics_scene = g_runtime_global_context.m_world_manager->getCurrentActivePhysicsScene().lock();
-        ASSERT(physics_scene);
-        m_character = physics_scene->createCharacter();
+        // std::shared_ptr<PhysicsScene> physics_scene = g_runtime_global_context.m_world_manager->getCurrentActivePhysicsScene().lock();
+        // ASSERT(physics_scene);
+        // m_character = physics_scene->createCharacter();
     }
 
     CharacterController::~CharacterController()
     {
-        if (m_character != nullptr)
-        {
-            delete m_character;
-            m_character = nullptr;
-        }
+        // if (m_character != nullptr)
+        // {
+        //     delete m_character;
+        //     m_character = nullptr;
+        // }
     }
 
     Vector3 CharacterController::move(const Vector3& current_position, const Vector3& displacement)

@@ -51,6 +51,8 @@ if(NOT TARGET Jolt)
 
     add_subdirectory(JoltPhysics/Build)
 
+    target_compile_definitions(Jolt PUBLIC JPH_DISABLE_CUSTOM_ALLOCATOR)
+
     if(ENABLE_PHYSICS_DEBUG_RENDERER)
         set_target_properties(Jolt TestFramework
             PROPERTIES 
