@@ -44,6 +44,18 @@ namespace Piccolo
         m_level_debugger.reset();
     }
 
+    void WorldManager::setCurrentWorld(const std::string& world_url)
+    {
+        m_current_world_url = world_url;
+        m_is_world_loaded   = false;
+    }
+
+    void WorldManager::setCurrentLevel(const std::string& level_url)
+    {
+        m_current_level_url = level_url;
+        m_is_world_loaded   = false;
+    }
+
     void WorldManager::tick(float delta_time)
     {
         if (!m_is_world_loaded)
@@ -82,17 +94,20 @@ namespace Piccolo
         }
 
         m_current_world_resource = std::make_shared<WorldRes>(world_res);
+        if (m_current_level_url.size() == 0)
+        {
+            m_current_level_url = world_res.m_default_level_url;
+        }
 
-        const bool is_level_load_success = loadLevel(world_res.m_default_level_url);
+        const bool is_level_load_success = loadLevel(m_current_level_url);
         if (!is_level_load_success)
         {
             return false;
         }
 
         // set the default level to be active level
-        auto iter = m_loaded_levels.find(world_res.m_default_level_url);
+        auto iter = m_loaded_levels.find(m_current_level_url);
         ASSERT(iter != m_loaded_levels.end());
-
         m_current_active_level = iter->second;
 
         m_is_world_loaded = true;

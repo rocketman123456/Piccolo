@@ -21,16 +21,16 @@ namespace Piccolo
         template<typename T>
         void registerComponent()
         {
-            m_component_manager->RegisterComponent<T>();
+            m_component_manager->registerComponent<T>();
         }
 
         template<typename T>
         void addComponent(Entity entity, T component)
         {
-            m_component_manager->AddComponent<T>(entity, component);
+            m_component_manager->addComponent<T>(entity, component);
 
             auto signature = m_entity_manager->getSignature(entity);
-            signature.set(m_component_manager->GetComponentType<T>(), true);
+            signature.set(m_component_manager->getComponentType<T>(), true);
             m_entity_manager->setSignature(entity, signature);
 
             m_system_manager->entitySignatureChanged(entity, signature);
@@ -39,10 +39,10 @@ namespace Piccolo
         template<typename T>
         void removeComponent(Entity entity)
         {
-            m_component_manager->RemoveComponent<T>(entity);
+            m_component_manager->removeComponent<T>(entity);
 
             auto signature = m_entity_manager->getSignature(entity);
-            signature.set(m_component_manager->GetComponentType<T>(), false);
+            signature.set(m_component_manager->getComponentType<T>(), false);
             m_entity_manager->setSignature(entity, signature);
 
             m_system_manager->entitySignatureChanged(entity, signature);
@@ -51,26 +51,26 @@ namespace Piccolo
         template<typename T>
         T& getComponent(Entity entity)
         {
-            return m_component_manager->GetComponent<T>(entity);
+            return m_component_manager->getComponent<T>(entity);
         }
 
         template<typename T>
         ComponentType getComponentType()
         {
-            return m_component_manager->GetComponentType<T>();
+            return m_component_manager->getComponentType<T>();
         }
 
         // System methods
         template<typename T>
         std::shared_ptr<T> registerSystem()
         {
-            return m_system_manager->RegisterSystem<T>();
+            return m_system_manager->registerSystem<T>();
         }
 
         template<typename T>
         void setSystemSignature(Signature signature)
         {
-            m_system_manager->SetSignature<T>(signature);
+            m_system_manager->setSignature<T>(signature);
         }
 
     private:

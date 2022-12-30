@@ -2,7 +2,8 @@
 
 namespace Piccolo
 {
-    void ComponentArray::removeData(Entity entity)
+    template<typename T>
+    void ComponentArray<T>::removeData(Entity entity)
     {
         assert(m_entity_to_index.find(entity) != m_entity_to_index.end() && "Removing non-existent component.");
 
@@ -21,7 +22,8 @@ namespace Piccolo
         --m_size;
     }
 
-    void ComponentArray::entityDestroyed(Entity entity)
+    template<typename T>
+    void ComponentArray<T>::entityDestroyed(Entity entity)
     {
         if (m_entity_to_index.find(entity) != m_entity_to_index.end())
         {

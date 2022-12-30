@@ -66,7 +66,7 @@
     },
     {
       "name": "Bunny_1",
-      "definition": "asset/objects/environment/basic/bunny.object.json",
+      "definition": "asset/objects/environment/basic/convexmesh.object.json",
       "instanced_components": [
         {
           "$context": {
@@ -83,9 +83,38 @@
                 "w": 0.70653
               },
               "scale": {
-                "x": 0.999829,
-                "y": 0.999829,
+                "x": 1,
+                "y": 1,
                 "z": 1
+              }
+            }
+          },
+          "$typeName": "TransformComponent"
+        }
+      ]
+    },
+    {
+      "name": "Teapot_1",
+      "definition": "asset/objects/basic/teapot/teapot.object.json",
+      "instanced_components": [
+        {
+          "$context": {
+            "transform": {
+              "position": {
+                "x": 6.32963,
+                "y": -16.3531,
+                "z": 0
+              },
+              "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": -0.707683,
+                "w": 0.70653
+              },
+              "scale": {
+                "x": 0.01,
+                "y": 0.01,
+                "z": 0.01
               }
             }
           },

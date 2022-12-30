@@ -18,7 +18,7 @@ namespace Piccolo
 
             assert(m_component_types.find(type_name) == m_component_types.end() && "Registering component type more than once.");
 
-            m_component_types.insert({typeName, m_next_component_type});
+            m_component_types.insert({type_name, m_next_component_type});
             m_component.insert({type_name, std::make_shared<ComponentArray<T>>()});
             ++m_next_component_type;
         }

@@ -24,6 +24,9 @@ namespace Piccolo
         void reloadCurrentLevel();
         void saveCurrentLevel();
 
+        void setCurrentWorld(const std::string& world_url);
+        void setCurrentLevel(const std::string& level_url);
+
         void                 tick(float delta_time);
         std::weak_ptr<Level> getCurrentActiveLevel() const { return m_current_active_level; }
 
@@ -37,6 +40,7 @@ namespace Piccolo
         std::string               m_current_world_url;
         std::shared_ptr<WorldRes> m_current_world_resource;
 
+        std::string m_current_level_url;
         // all loaded levels, key: level url, vaule: level instance
         std::unordered_map<std::string, std::shared_ptr<Level>> m_loaded_levels;
         // active level, currently we just support one active level

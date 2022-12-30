@@ -47,23 +47,12 @@ namespace Piccolo
         std::shared_ptr<PhysicsScene> physics_scene = g_runtime_global_context.m_world_manager->getCurrentActivePhysicsScene().lock();
         ASSERT(physics_scene);
 
+        std::vector<PhysicsHitInfo> hits;
+
         if(displacement.length() > 0.01)
         {
             Transform transform = m_rigidbody_shape.m_global_transform;
         }
-
-        Transform transform = m_rigidbody_shape.m_global_transform;
-
-        auto position = transform.m_position;
-        auto rotation = transform.m_rotation;
-        auto velocity = displacement * 100;
-
-        JPH::Vec3 post_position = m_character->GetPosition();
-        m_character->SetPositionAndRotation(JPH::Vec3(position.x, position.y, position.z), JPH::Quat(rotation.w, rotation.x, rotation.y, rotation.z));
-        m_character->SetLinearVelocity(JPH::Vec3(velocity.x, velocity.y, velocity.z));
-        m_character->PostSimulation(0.05f);
-
-        Vector3 final_position = current_position + displacement;
 
         Transform world_transform = Transform(current_position + 0.1f * Vector3::UNIT_Z, Quaternion::IDENTITY, Vector3::UNIT_SCALE);
 
