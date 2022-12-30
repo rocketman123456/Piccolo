@@ -2,7 +2,6 @@
 
 #include "runtime/function/framework/ecs/component_manager.h"
 #include "runtime/function/framework/ecs/entity_manager.h"
-#include "runtime/function/framework/ecs/event_manager.h"
 #include "runtime/function/framework/ecs/system_manager.h"
 
 #include <memory>
@@ -12,23 +11,11 @@ namespace Piccolo
     class Coordinator
     {
     public:
-        void init()
-        {
-            m_component_manager = std::make_unique<ComponentManager>();
-            m_entity_manager    = std::make_unique<EntityManager>();
-            m_event_manager     = std::make_unique<EventManager>();
-            m_system_manager    = std::make_unique<SystemManager>();
-        }
+        void init();
 
         // Entity methods
-        Entity createEntity() { return m_entity_manager->createEntity(); }
-
-        void destroyEntity(Entity entity)
-        {
-            m_entity_manager->destroyEntity(entity);
-            m_component_manager->entityDestroyed(entity);
-            m_system_manager->entityDestroyed(entity);
-        }
+        Entity createEntity();
+        void   destroyEntity(Entity entity);
 
         // Component methods
         template<typename T>
@@ -86,15 +73,9 @@ namespace Piccolo
             m_system_manager->SetSignature<T>(signature);
         }
 
-        // // Event methods
-        // void addEventListener(EventId eventId, std::function<void(Event&)> const& listener) { mEventManager->AddListener(eventId, listener); }
-        // void sendEvent(Event& event) { mEventManager->sendEvent(event); }
-        // void sendEvent(EventId eventId) { mEventManager->sendEvent(eventId); }
-
     private:
         std::unique_ptr<ComponentManager> m_component_manager;
         std::unique_ptr<EntityManager>    m_entity_manager;
-        std::unique_ptr<EventManager>     m_event_manager;
         std::unique_ptr<SystemManager>    m_system_manager;
     };
 } // namespace Piccolo

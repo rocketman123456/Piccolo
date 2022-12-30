@@ -51,14 +51,7 @@ namespace Piccolo
             return getComponentArray<T>()->getData(entity);
         }
 
-        void entityDestroyed(Entity entity)
-        {
-            for (auto const& pair : m_component)
-            {
-                auto const& component = pair.second;
-                component->entityDestroyed(entity);
-            }
-        }
+        void entityDestroyed(Entity entity);
 
     private:
         template<typename T>

@@ -33,29 +33,8 @@ namespace Piccolo
             m_signatures.insert({type_name, signature});
         }
 
-        void entityDestroyed(Entity entity)
-        {
-            for (auto const& pair : m_systems)
-            {
-                auto const& system = pair.second;
-                system->m_entities.erase(entity);
-            }
-        }
-
-        void entitySignatureChanged(Entity entity, Signature entitySignature)
-        {
-            for (auto const& pair : m_systems)
-            {
-                auto const& type            = pair.first;
-                auto const& system          = pair.second;
-                auto const& systemSignature = m_signatures[type];
-
-                if ((entitySignature & systemSignature) == systemSignature)
-                    system->m_entities.insert(entity);
-                else
-                    system->m_entities.erase(entity);
-            }
-        }
+        void entityDestroyed(Entity entity);
+        void entitySignatureChanged(Entity entity, Signature entitySignature);
 
     private:
         std::unordered_map<const char*, Signature>               m_signatures {};

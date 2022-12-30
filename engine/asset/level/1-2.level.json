@@ -1,0 +1,121 @@
+{
+  "gravity": {
+    "x": 0,
+    "y": 0,
+    "z": -10
+  },
+  "character_name": "Player",
+  "objects": [
+    {
+      "name": "Emitter",
+      "instanced_components": [
+        {
+          "$typeName": "TransformComponent",
+          "$context": {
+            "transform": {
+              "position": {
+                "x": 32,
+                "y": 11,
+                "z": 3
+              },
+              "rotation": {
+                "w": 0.46944212913513184,
+                "x": 0,
+                "y": 0,
+                "z": 0.88296324014663696
+              },
+              "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          }
+        }
+      ],
+      "definition": "asset/objects/environment/particle/particle.object.json"
+    },
+    {
+      "name": "Player",
+      "instanced_components": [
+        {
+          "$typeName": "TransformComponent",
+          "$context": {
+            "transform": {
+              "position": {
+                "x": 3,
+                "y": 3,
+                "z": 0
+              },
+              "rotation": {
+                "w": 0.70710678118654752,
+                "x": 0,
+                "y": 0,
+                "z": 0.70710678118654752
+              },
+              "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          }
+        }
+      ],
+      "definition": "asset/objects/character/player/player.object.json"
+    },
+    {
+      "name": "Bunny_1",
+      "definition": "asset/objects/environment/basic/bunny.object.json",
+      "instanced_components": [
+        {
+          "$context": {
+            "transform": {
+              "position": {
+                "x": 6.32963,
+                "y": -16.3531,
+                "z": 0
+              },
+              "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": -0.707683,
+                "w": 0.70653
+              },
+              "scale": {
+                "x": 0.999829,
+                "y": 0.999829,
+                "z": 1
+              }
+            }
+          },
+          "$typeName": "TransformComponent"
+        }
+      ]
+    },
+    {
+      "name": "Ground",
+      "definition": "asset/objects/environment/floor/floor.object.json",
+      "instanced_components": [
+        {
+          "$context": {
+            "transform": {
+              "rotation": {},
+              "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              },
+              "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              }
+            }
+          },
+          "$typeName": "TransformComponent"
+        }
+      ]
+    }
+  ]
+}
