@@ -41,6 +41,7 @@ if(NOT TARGET Jolt)
     option(TARGET_SAMPLES "" OFF)
     option(TARGET_UNIT_TESTS "" OFF)
     option(TARGET_VIEWER "" OFF)
+    # option(CROSS_PLATFORM_DETERMINISTIC "" OFF)
 
     if(ENABLE_PHYSICS_DEBUG_RENDERER)
         option(TARGET_TEST_FRAMEWORK "" ON)

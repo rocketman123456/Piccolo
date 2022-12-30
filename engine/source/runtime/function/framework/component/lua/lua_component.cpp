@@ -85,8 +85,7 @@ namespace Piccolo
 
     void LuaComponent::invoke(std::weak_ptr<GObject> game_object, const char* name)
     {
-        LOG_INFO(name);
-
+        // LOG_INFO(name);
         Reflection::TypeMeta meta;
 
         void*       target_instance = nullptr;

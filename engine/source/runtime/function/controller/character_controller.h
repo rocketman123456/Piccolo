@@ -4,6 +4,12 @@
 #include "runtime/resource/res_type/components/rigid_body.h"
 #include "runtime/resource/res_type/data/basic_shape.h"
 
+namespace JPH
+{
+    class Character;
+    class CharacterVirtual;
+} // namespace JPH
+
 namespace Piccolo
 {
     enum SweepPass
@@ -31,12 +37,14 @@ namespace Piccolo
     {
     public:
         CharacterController(const Capsule& capsule);
-        ~CharacterController() = default;
+        ~CharacterController();
 
         Vector3 move(const Vector3& current_position, const Vector3& displacement) override;
 
     private:
         Capsule        m_capsule;
         RigidBodyShape m_rigidbody_shape;
+
+        JPH::Character* m_character;
     };
 } // namespace Piccolo

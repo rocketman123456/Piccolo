@@ -10,6 +10,8 @@ namespace JPH
     class JobSystem;
     class TempAllocator;
     class BroadPhaseLayerInterface;
+    class BodyInterface;
+    class Character;
 #ifdef ENABLE_PHYSICS_DEBUG_RENDERER
     class DebugRenderer;
 #endif
@@ -35,10 +37,13 @@ namespace Piccolo
     {
         struct JoltPhysics
         {
+            // TODO : care memory allocator in newer jolt
+
             JPH::PhysicsSystem*            m_jolt_physics_system {nullptr};
             JPH::JobSystem*                m_jolt_job_system {nullptr};
             JPH::TempAllocator*            m_temp_allocator {nullptr};
             JPH::BroadPhaseLayerInterface* m_jolt_broad_phase_layer_interface {nullptr};
+            JPH::BodyInterface*            m_body_interface {nullptr};
 
             int m_collision_steps {1};
             int m_integration_substeps {1};
@@ -52,6 +57,9 @@ namespace Piccolo
 
         uint32_t createRigidBody(const Transform& global_transform, const RigidBodyComponentRes& rigidbody_actor_res);
         void     removeRigidBody(uint32_t body_id);
+
+        JPH::Character* createCharacter();
+        void            removeCharacter(JPH::Character* body_id);
 
         void updateRigidBodyGlobalTransform(uint32_t body_id, const Transform& global_transform);
 
@@ -88,6 +96,12 @@ namespace Piccolo
 #ifdef ENABLE_PHYSICS_DEBUG_RENDERER
         void drawPhysicsScene(JPH::DebugRenderer* debug_renderer);
 #endif
+
+        // For Debug
+        JPH::PhysicsSystem* getPhycicsSystem() const { return m_physics.m_jolt_physics_system; }
+        JPH::JobSystem*     getJobSystem() const { return m_physics.m_jolt_job_system; }
+        JPH::BodyInterface* getBodyInterface() const { return m_physics.m_body_interface; }
+        JPH::TempAllocator* getTempAllocator() const { return m_physics.m_temp_allocator; }
 
     protected:
         // we use single Jolt physics system for each scene

@@ -219,7 +219,6 @@ namespace Piccolo
         {
             spv::SpvBuildLogger logger;
             glslang::SpvOptions spvOptions;
-            // spvOptions.generateDebugInfo = false;
             spvOptions.stripDebugInfo   = true;
             spvOptions.disableOptimizer = true;
             spvOptions.optimizeSize     = true;
@@ -227,9 +226,17 @@ namespace Piccolo
             spvOptions.validate         = SpvToolsValidate;
             glslang::GlslangToSpv(*program->getIntermediate((EShLanguage)stage), spirv, &logger, &spvOptions);
         }
+        else
+        {
+            throw std::exception("cannot find target shader");
+        }
 
         glslang::FinalizeProcess();
 
+        delete shader;
+        delete program;
+
+        // copy data to unsigned char;
         std::vector<unsigned char> spirv_char;
         spirv_char.resize(spirv.size() * sizeof(unsigned int));
         memcpy(spirv_char.data(), spirv.data(), spirv_char.size());
