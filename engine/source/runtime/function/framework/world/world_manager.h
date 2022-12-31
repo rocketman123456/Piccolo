@@ -30,7 +30,7 @@ namespace Piccolo
         void tick(float delta_time);
 
         std::weak_ptr<Level>        getCurrentActiveLevel() const { return m_current_active_level; }
-        std::shared_ptr<WorldRes>   getCurrentActiveWorldRes() const { return m_current_world_resource; }
+        std::weak_ptr<WorldRes>     getCurrentActiveWorldRes() const { return m_current_world_resource; }
         std::weak_ptr<PhysicsScene> getCurrentActivePhysicsScene() const;
 
     private:

@@ -317,7 +317,7 @@ namespace Piccolo
                 }
                 if (ImGui::BeginMenu("Reload Selected Level"))
                 {
-                    std::shared_ptr<WorldRes> world = g_runtime_global_context.m_world_manager->getCurrentActiveWorldRes();
+                    std::shared_ptr<WorldRes> world = g_runtime_global_context.m_world_manager->getCurrentActiveWorldRes().lock();
                     for(auto level_url : world->m_level_urls)
                     {
                         if (ImGui::MenuItem(level_url.c_str()))
