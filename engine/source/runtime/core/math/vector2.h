@@ -6,6 +6,9 @@
 #include <cassert>
 #include <cmath>
 
+// TODO : maybe we could use 3rd party math library instead
+// because we need a lot of matrix operation for animation etc.
+
 namespace Piccolo
 {
     REFLECTION_TYPE(Vector2)

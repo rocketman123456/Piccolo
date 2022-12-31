@@ -36,23 +36,23 @@ namespace Piccolo
         }
     }
 
-    //static std::vector<size_t>& calcBonePoseIndex(int bone_count, const std::vector<size_t>& pose_bone_index)
+    // static std::vector<size_t>& calcBonePoseIndex(int bone_count, const std::vector<size_t>& pose_bone_index)
     //{
-    //    std::vector<size_t> pose_index;
-    //    pose_index.resize(bone_count);
-    //    for (int i = 0; i < pose_index.size(); i++)
-    //    {
-    //        pose_index[i] = -1;
-    //    }
-    //    for (int i = 0; i < pose_bone_index.size(); i++)
-    //    {
-    //        if (pose_bone_index[i] < pose_index.size())
-    //        {
-    //            pose_index[pose_bone_index[i]] = i;
-    //        }
-    //    }
-    //    return pose_index;
-    //}
+    //     std::vector<size_t> pose_index;
+    //     pose_index.resize(bone_count);
+    //     for (int i = 0; i < pose_index.size(); i++)
+    //     {
+    //         pose_index[i] = -1;
+    //     }
+    //     for (int i = 0; i < pose_bone_index.size(); i++)
+    //     {
+    //         if (pose_bone_index[i] < pose_index.size())
+    //         {
+    //             pose_index[pose_bone_index[i]] = i;
+    //         }
+    //     }
+    //     return pose_index;
+    // }
 
     void Skeleton::applyPose(const AnimationPose& pose)
     {
@@ -186,9 +186,10 @@ namespace Piccolo
         for (size_t i = 0; i < m_bone_count; i++)
         {
             std::shared_ptr<AnimationResultElement> animation_result_element = std::make_shared<AnimationResultElement>();
-            Bone*                                   bone                     = &m_bones[i];
-            animation_result_element->m_index                                = bone->getID() + 1;
-            Vector3 temp_translation                                         = bone->_getDerivedPosition();
+
+            Bone* bone                        = &m_bones[i];
+            animation_result_element->m_index = bone->getID() + 1;
+            Vector3 temp_translation          = bone->_getDerivedPosition();
 
             // TODO: the unit of the joint matrices is wrong
             Vector3 temp_scale = bone->_getDerivedScale();

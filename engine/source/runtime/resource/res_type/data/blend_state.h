@@ -1,7 +1,7 @@
 #pragma once
 #include "runtime/core/meta/reflection/reflection.h"
 #include "runtime/resource/res_type/data/animation_clip.h"
-#include "runtime/resource/res_type/data/animation_skeleton_node_map.h"
+#include "runtime/resource/res_type/data/animation_skeleton_map.h"
 
 #include <string>
 #include <vector>

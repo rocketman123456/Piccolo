@@ -2,7 +2,7 @@
 
 #include "runtime/core/base/macro.h"
 #include "runtime/engine.h"
-#include "runtime/function/animation/animation_system.h"
+#include "runtime/function/animation/animation_manager.h"
 #include "runtime/function/framework/object/object.h"
 
 namespace Piccolo
