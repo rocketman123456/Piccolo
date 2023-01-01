@@ -33,15 +33,8 @@ namespace Piccolo
         REFLECTION_BODY(AnimationComponentRes);
 
     public:
-        META(Enable)
-        std::string m_skeleton_file_path;
-        META(Enable) 
+        std::string                                      m_skeleton_file_path;
         std::vector<Reflection::ReflectionPtr<ClipBase>> m_clips;
-
-        //BlendState  m_blend_state;
-        // animation to skeleton map
-        //float m_frame_position; // 0-1
-        //AnimationResult m_animation_result;
     };
 
 } // namespace Piccolo

@@ -390,21 +390,6 @@
         },
         {
           "$context": {
-            "camera_res": {
-              "parameter": {
-                "$context": {
-                  "fov": 70,
-                  "horizontal_offset": 3,
-                  "vertical_offset": 1.5
-                },
-                "$typeName": "ThirdPersonCameraParameter"
-              }
-            }
-          },
-          "$typeName": "CameraComponent"
-        },
-        {
-          "$context": {
             "lua_script_res": {
               "script_url": "scripts/player/set_jump_height.lua"
             }
@@ -591,21 +576,6 @@
             }
           },
           "$typeName": "MotorComponent"
-        },
-        {
-          "$context": {
-            "camera_res": {
-              "parameter": {
-                "$context": {
-                  "fov": 70,
-                  "horizontal_offset": 3,
-                  "vertical_offset": 1.5
-                },
-                "$typeName": "ThirdPersonCameraParameter"
-              }
-            }
-          },
-          "$typeName": "CameraComponent"
         },
         {
           "$context": {
