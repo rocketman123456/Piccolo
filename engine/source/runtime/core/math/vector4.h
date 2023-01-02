@@ -14,6 +14,9 @@ namespace Piccolo
     public:
         float x {0.f}, y {0.f}, z {0.f}, w {0.f};
 
+        META(Disable)
+        FVector4 data;
+
     public:
         Vector4() = default;
         Vector4(float x_, float y_, float z_, float w_) : x {x_}, y {y_}, z {z_}, w {w_} {}

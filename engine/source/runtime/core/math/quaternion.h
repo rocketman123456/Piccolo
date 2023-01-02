@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/core/math/math.h"
+#include "runtime/core/math/math_defines.h"
 #include "runtime/core/meta/reflection/reflection.h"
 
 #include <cassert>
@@ -17,6 +18,9 @@ namespace Piccolo
 
     public:
         float w {1.f}, x {0.f}, y {0.f}, z {0.f};
+
+        META(Disable)
+        FQuaternion data;
 
     public:
         Quaternion() = default;

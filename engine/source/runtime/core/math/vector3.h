@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/core/math/math.h"
+#include "runtime/core/math/math_defines.h"
 #include "runtime/core/math/quaternion.h"
 #include "runtime/core/meta/reflection/reflection.h"
 
@@ -17,6 +18,9 @@ namespace Piccolo
         float x {0.f};
         float y {0.f};
         float z {0.f};
+
+        META(Disable)
+        FVector3 data;
 
     public:
         Vector3() = default;
@@ -39,6 +43,19 @@ namespace Piccolo
         float* ptr() { return &x; }
         /// Pointer accessor for direct copying
         const float* ptr() const { return &x; }
+
+        FVector3 toFVector2()
+        {
+            data << x, y, z;
+            return data;
+        }
+
+        void fromFVector3(const FVector3& v)
+        {
+            x = v[0];
+            y = v[1];
+            z = v[2];
+        }
 
         bool operator==(const Vector3& rhs) const { return (x == rhs.x && y == rhs.y && z == rhs.z); }
 

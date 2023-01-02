@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/core/math/math.h"
+#include "runtime/core/math/math_defines.h"
 #include "runtime/core/meta/reflection/reflection.h"
 
 #include <cassert>
@@ -15,6 +16,9 @@ namespace Piccolo
 
     public:
         float x {0.f}, y {0.f};
+
+        META(Disable)
+        FVector2 data;
 
     public:
         Vector2() = default;
@@ -41,6 +45,18 @@ namespace Piccolo
         {
             assert(i < 2);
             return (i == 0 ? x : y);
+        }
+
+        FVector2 toFVector2()
+        {
+            data << x, y;
+            return data;
+        }
+
+        void fromFVector2(const FVector2& v)
+        {
+            x = v[0];
+            y = v[1];
         }
 
         bool operator==(const Vector2& rhs) const { return (x == rhs.x && y == rhs.y); }
