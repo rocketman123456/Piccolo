@@ -19,14 +19,13 @@ namespace Piccolo
         float y {0.f};
         float z {0.f};
 
-        META(Disable)
-        FVector3 data;
-
     public:
         Vector3() = default;
         Vector3(float x_, float y_, float z_) : x {x_}, y {y_}, z {z_} {}
 
         explicit Vector3(const float coords[3]) : x {coords[0]}, y {coords[1]}, z {coords[2]} {}
+
+        explicit Vector3(const FVector3& v) : x {v[0]}, y {v[1]}, z {v[2]} {}
 
         float operator[](size_t i) const
         {
@@ -44,9 +43,9 @@ namespace Piccolo
         /// Pointer accessor for direct copying
         const float* ptr() const { return &x; }
 
-        FVector3 toFVector2()
+        FVector3 toFVector3()
         {
-            data << x, y, z;
+            FVector3 data(x, y, z);
             return data;
         }
 

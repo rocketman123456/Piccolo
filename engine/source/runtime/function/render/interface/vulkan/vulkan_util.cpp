@@ -228,7 +228,7 @@ namespace Piccolo
         }
         else
         {
-            throw std::exception("cannot find target shader");
+            throw std::runtime_error("cannot find target shader");
         }
 
         glslang::FinalizeProcess();

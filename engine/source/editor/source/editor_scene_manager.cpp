@@ -43,7 +43,7 @@ namespace Piccolo
         return -(normal.dotProduct(origin) + d) / deno;
     }
 
-    size_t EditorSceneManager::updateCursorOnAxis(Vector2 cursor_uv, Vector2 game_engine_window_size)
+    size_t EditorSceneManager::updateCursorOnAxis(FVector2 cursor_uv, FVector2 game_engine_window_size)
     {
 
         float   camera_fov     = m_camera->getFovYDeprecated();
@@ -70,10 +70,10 @@ namespace Piccolo
             Quaternion model_rotation;
             Vector3    model_translation;
             model_matrix.decomposition(model_translation, model_scale, model_rotation);
-            float   window_forward   = game_engine_window_size.y / 2.0f / Math::tan(Math::degreesToRadians(camera_fov) / 2.0f);
-            Vector2 screen_center_uv = Vector2(cursor_uv.x, 1 - cursor_uv.y) - Vector2(0.5, 0.5);
-            Vector3 world_ray_dir    = camera_forward * window_forward + camera_right * (float)game_engine_window_size.x * screen_center_uv.x +
-                                    camera_up * (float)game_engine_window_size.y * screen_center_uv.y;
+            float    window_forward   = game_engine_window_size[1] / 2.0f / Math::tan(Math::degreesToRadians(camera_fov) / 2.0f);
+            FVector2 screen_center_uv = FVector2(cursor_uv[0], 1 - cursor_uv[1]) - FVector2(0.5, 0.5);
+            Vector3  world_ray_dir    = camera_forward * window_forward + camera_right * (float)game_engine_window_size[0] * screen_center_uv[0] +
+                                    camera_up * (float)game_engine_window_size[1] * screen_center_uv[1];
 
             Vector4    local_ray_origin     = model_matrix.inverse() * Vector4(camera_position, 1.0f);
             Vector3    local_ray_origin_xyz = Vector3(local_ray_origin.x, local_ray_origin.y, local_ray_origin.z);
@@ -291,8 +291,8 @@ namespace Piccolo
                                         float     new_mouse_pos_y,
                                         float     last_mouse_pos_x,
                                         float     last_mouse_pos_y,
-                                        Vector2   engine_window_pos,
-                                        Vector2   engine_window_size,
+                                        FVector2  engine_window_pos,
+                                        FVector2  engine_window_size,
                                         size_t    cursor_on_axis,
                                         Matrix4x4 model_matrix)
     {
@@ -300,8 +300,8 @@ namespace Piccolo
         if (selected_object == nullptr)
             return;
 
-        float   angularVelocity     = 18.0f / Math::max(engine_window_size.x, engine_window_size.y); // 18 degrees while moving full screen
-        Vector2 delta_mouse_move_uv = {(new_mouse_pos_x - last_mouse_pos_x), (new_mouse_pos_y - last_mouse_pos_y)};
+        float   angularVelocity     = 18.0f / Math::max(engine_window_size[0], engine_window_size[1]); // 18 degrees while moving full screen
+        FVector2 delta_mouse_move_uv = {(new_mouse_pos_x - last_mouse_pos_x), (new_mouse_pos_y - last_mouse_pos_y)};
 
         Vector3    model_scale;
         Quaternion model_rotation;
@@ -318,7 +318,7 @@ namespace Piccolo
 
         Vector4 model_origin_clip_position = proj_matrix * view_matrix * model_world_position_4;
         model_origin_clip_position /= model_origin_clip_position.w;
-        Vector2 model_origin_clip_uv = Vector2((model_origin_clip_position.x + 1) / 2.0f, (model_origin_clip_position.y + 1) / 2.0f);
+        FVector2 model_origin_clip_uv = FVector2((model_origin_clip_position.x + 1) / 2.0f, (model_origin_clip_position.y + 1) / 2.0f);
 
         Vector4 axis_x_local_position_4(1, 0, 0, 1);
         if (m_axis_mode == EditorAxisMode::ScaleMode)
@@ -329,9 +329,9 @@ namespace Piccolo
         axis_x_world_position_4.w       = 1.0f;
         Vector4 axis_x_clip_position    = proj_matrix * view_matrix * axis_x_world_position_4;
         axis_x_clip_position /= axis_x_clip_position.w;
-        Vector2 axis_x_clip_uv((axis_x_clip_position.x + 1) / 2.0f, (axis_x_clip_position.y + 1) / 2.0f);
-        Vector2 axis_x_direction_uv = axis_x_clip_uv - model_origin_clip_uv;
-        axis_x_direction_uv.normalise();
+        FVector2 axis_x_clip_uv((axis_x_clip_position.x + 1) / 2.0f, (axis_x_clip_position.y + 1) / 2.0f);
+        FVector2 axis_x_direction_uv = axis_x_clip_uv - model_origin_clip_uv;
+        axis_x_direction_uv.normalize();
 
         Vector4 axis_y_local_position_4(0, 1, 0, 1);
         if (m_axis_mode == EditorAxisMode::ScaleMode)
@@ -342,9 +342,9 @@ namespace Piccolo
         axis_y_world_position_4.w       = 1.0f;
         Vector4 axis_y_clip_position    = proj_matrix * view_matrix * axis_y_world_position_4;
         axis_y_clip_position /= axis_y_clip_position.w;
-        Vector2 axis_y_clip_uv((axis_y_clip_position.x + 1) / 2.0f, (axis_y_clip_position.y + 1) / 2.0f);
-        Vector2 axis_y_direction_uv = axis_y_clip_uv - model_origin_clip_uv;
-        axis_y_direction_uv.normalise();
+        FVector2 axis_y_clip_uv((axis_y_clip_position.x + 1) / 2.0f, (axis_y_clip_position.y + 1) / 2.0f);
+        FVector2 axis_y_direction_uv = axis_y_clip_uv - model_origin_clip_uv;
+        axis_y_direction_uv.normalize();
 
         Vector4 axis_z_local_position_4(0, 0, 1, 1);
         if (m_axis_mode == EditorAxisMode::ScaleMode)
@@ -355,9 +355,9 @@ namespace Piccolo
         axis_z_world_position_4.w       = 1.0f;
         Vector4 axis_z_clip_position    = proj_matrix * view_matrix * axis_z_world_position_4;
         axis_z_clip_position /= axis_z_clip_position.w;
-        Vector2 axis_z_clip_uv((axis_z_clip_position.x + 1) / 2.0f, (axis_z_clip_position.y + 1) / 2.0f);
-        Vector2 axis_z_direction_uv = axis_z_clip_uv - model_origin_clip_uv;
-        axis_z_direction_uv.normalise();
+        FVector2 axis_z_clip_uv((axis_z_clip_position.x + 1) / 2.0f, (axis_z_clip_position.y + 1) / 2.0f);
+        FVector2 axis_z_direction_uv = axis_z_clip_uv - model_origin_clip_uv;
+        axis_z_direction_uv.normalize();
 
         TransformComponent* transform_component = selected_object->tryGetComponent(TransformComponent);
 
@@ -367,15 +367,15 @@ namespace Piccolo
             Vector3 move_vector = {0, 0, 0};
             if (cursor_on_axis == 0)
             {
-                move_vector.x = delta_mouse_move_uv.dotProduct(axis_x_direction_uv) * angularVelocity;
+                move_vector.x = delta_mouse_move_uv.dot(axis_x_direction_uv) * angularVelocity;
             }
             else if (cursor_on_axis == 1)
             {
-                move_vector.y = delta_mouse_move_uv.dotProduct(axis_y_direction_uv) * angularVelocity;
+                move_vector.y = delta_mouse_move_uv.dot(axis_y_direction_uv) * angularVelocity;
             }
             else if (cursor_on_axis == 2)
             {
-                move_vector.z = delta_mouse_move_uv.dotProduct(axis_z_direction_uv) * angularVelocity;
+                move_vector.z = delta_mouse_move_uv.dot(axis_z_direction_uv) * angularVelocity;
             }
             else
             {
@@ -410,18 +410,18 @@ namespace Piccolo
         }
         else if (m_axis_mode == EditorAxisMode::RotateMode) // rotate
         {
-            float   last_mouse_u = (last_mouse_pos_x - engine_window_pos.x) / engine_window_size.x;
-            float   last_mouse_v = (last_mouse_pos_y - engine_window_pos.y) / engine_window_size.y;
-            Vector2 last_move_vector(last_mouse_u - model_origin_clip_uv.x, last_mouse_v - model_origin_clip_uv.y);
-            float   new_mouse_u = (new_mouse_pos_x - engine_window_pos.x) / engine_window_size.x;
-            float   new_mouse_v = (new_mouse_pos_y - engine_window_pos.y) / engine_window_size.y;
-            Vector2 new_move_vector(new_mouse_u - model_origin_clip_uv.x, new_mouse_v - model_origin_clip_uv.y);
-            Vector3 delta_mouse_uv_3(delta_mouse_move_uv.x, delta_mouse_move_uv.y, 0);
+            float   last_mouse_u = (last_mouse_pos_x - engine_window_pos[0]) / engine_window_size[0];
+            float   last_mouse_v = (last_mouse_pos_y - engine_window_pos[1]) / engine_window_size[1];
+            FVector2 last_move_vector(last_mouse_u - model_origin_clip_uv[0], last_mouse_v - model_origin_clip_uv[1]);
+            float   new_mouse_u = (new_mouse_pos_x - engine_window_pos[0]) / engine_window_size[0];
+            float   new_mouse_v = (new_mouse_pos_y - engine_window_pos[1]) / engine_window_size[1];
+            FVector2 new_move_vector(new_mouse_u - model_origin_clip_uv[0], new_mouse_v - model_origin_clip_uv[1]);
+            Vector3 delta_mouse_uv_3(delta_mouse_move_uv[0], delta_mouse_move_uv[1], 0);
             float   move_radian;
             Vector3 axis_of_rotation = {0, 0, 0};
             if (cursor_on_axis == 0)
             {
-                move_radian = (delta_mouse_move_uv * angularVelocity).length();
+                move_radian = (delta_mouse_move_uv * angularVelocity).norm();
                 if (m_camera->forward().dotProduct(Vector3::UNIT_X) < 0)
                 {
                     move_radian = -move_radian;
@@ -430,7 +430,7 @@ namespace Piccolo
             }
             else if (cursor_on_axis == 1)
             {
-                move_radian = (delta_mouse_move_uv * angularVelocity).length();
+                move_radian = (delta_mouse_move_uv * angularVelocity).norm();
                 if (m_camera->forward().dotProduct(Vector3::UNIT_Y) < 0)
                 {
                     move_radian = -move_radian;
@@ -439,7 +439,7 @@ namespace Piccolo
             }
             else if (cursor_on_axis == 2)
             {
-                move_radian = (delta_mouse_move_uv * angularVelocity).length();
+                move_radian = (delta_mouse_move_uv * angularVelocity).norm();
                 if (m_camera->forward().dotProduct(Vector3::UNIT_Z) < 0)
                 {
                     move_radian = -move_radian;
@@ -450,7 +450,7 @@ namespace Piccolo
             {
                 return;
             }
-            float move_direction = last_move_vector.x * new_move_vector.y - new_move_vector.x * last_move_vector.y;
+            float move_direction = last_move_vector[0] * new_move_vector[1] - new_move_vector[0] * last_move_vector[1];
             if (move_direction < 0)
             {
                 move_radian = -move_radian;
@@ -479,7 +479,7 @@ namespace Piccolo
             if (cursor_on_axis == 0)
             {
                 delta_scale_vector.x = 0.01f;
-                if (delta_mouse_move_uv.dotProduct(axis_x_direction_uv) < 0)
+                if (delta_mouse_move_uv.dot(axis_x_direction_uv) < 0)
                 {
                     delta_scale_vector = -delta_scale_vector;
                 }
@@ -487,7 +487,7 @@ namespace Piccolo
             else if (cursor_on_axis == 1)
             {
                 delta_scale_vector.y = 0.01f;
-                if (delta_mouse_move_uv.dotProduct(axis_y_direction_uv) < 0)
+                if (delta_mouse_move_uv.dot(axis_y_direction_uv) < 0)
                 {
                     delta_scale_vector = -delta_scale_vector;
                 }
@@ -495,7 +495,7 @@ namespace Piccolo
             else if (cursor_on_axis == 2)
             {
                 delta_scale_vector.z = 0.01f;
-                if (delta_mouse_move_uv.dotProduct(axis_z_direction_uv) < 0)
+                if (delta_mouse_move_uv.dot(axis_z_direction_uv) < 0)
                 {
                     delta_scale_vector = -delta_scale_vector;
                 }

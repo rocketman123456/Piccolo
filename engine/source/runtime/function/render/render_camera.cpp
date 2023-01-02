@@ -22,23 +22,23 @@ namespace Piccolo
 
     void RenderCamera::move(Vector3 delta) { m_position += delta; }
 
-    void RenderCamera::rotate(Vector2 delta)
+    void RenderCamera::rotate(FVector2 delta)
     {
         // rotation around x, y axis
-        delta = Vector2(Radian(Degree(delta.x)).valueRadians(), Radian(Degree(delta.y)).valueRadians());
+        delta = FVector2(Radian(Degree(delta[0])).valueRadians(), Radian(Degree(delta[1])).valueRadians());
 
         // limit pitch
         float dot = m_up_axis.dotProduct(forward());
-        if ((dot < -0.99f && delta.x > 0.0f) || // angle nearing 180 degrees
-            (dot > 0.99f && delta.x < 0.0f))    // angle nearing 0 degrees
-            delta.x = 0.0f;
+        if ((dot < -0.99f && delta[0] > 0.0f) || // angle nearing 180 degrees
+            (dot > 0.99f && delta[0] < 0.0f))    // angle nearing 0 degrees
+            delta[0] = 0.0f;
 
         // pitch is relative to current sideways rotation
         // yaw happens independently
         // this prevents roll
         Quaternion pitch, yaw;
-        pitch.fromAngleAxis(Radian(delta.x), X);
-        yaw.fromAngleAxis(Radian(delta.y), Z);
+        pitch.fromAngleAxis(Radian(delta[0]), X);
+        yaw.fromAngleAxis(Radian(delta[1]), Z);
 
         m_rotation = pitch * m_rotation * yaw;
 

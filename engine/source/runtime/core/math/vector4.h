@@ -14,15 +14,14 @@ namespace Piccolo
     public:
         float x {0.f}, y {0.f}, z {0.f}, w {0.f};
 
-        META(Disable)
-        FVector4 data;
-
     public:
         Vector4() = default;
         Vector4(float x_, float y_, float z_, float w_) : x {x_}, y {y_}, z {z_}, w {w_} {}
         Vector4(const Vector3& v3, float w_) : x {v3.x}, y {v3.y}, z {v3.z}, w {w_} {}
 
         explicit Vector4(float coords[4]) : x {coords[0]}, y {coords[1]}, z {coords[2]}, w {coords[3]} {}
+
+        explicit Vector4(const FVector4& v) : x {v[0]}, y {v[1]}, z {v[2]}, w {v[3]} {}
 
         float operator[](size_t i) const
         {
@@ -40,6 +39,20 @@ namespace Piccolo
         float* ptr() { return &x; }
         /// Pointer accessor for direct copying
         const float* ptr() const { return &x; }
+
+        FVector4 toFVector4()
+        {
+            FVector4 data(x, y, z, w);
+            return data;
+        }
+
+        void fromFVector4(const FVector4& v)
+        {
+            x = v[0];
+            y = v[1];
+            z = v[2];
+            w = v[3];
+        }
 
         Vector4& operator=(float scalar)
         {

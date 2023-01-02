@@ -36,7 +36,7 @@ namespace Piccolo
         void setMainViewMatrix(const Matrix4x4& view_matrix, RenderCameraType type = RenderCameraType::Editor);
 
         void move(Vector3 delta);
-        void rotate(Vector2 delta);
+        void rotate(FVector2 delta);
         void zoom(float offset);
         void lookAt(const Vector3& position, const Vector3& target, const Vector3& up);
 

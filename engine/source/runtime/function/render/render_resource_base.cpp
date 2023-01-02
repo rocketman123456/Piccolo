@@ -207,7 +207,7 @@ namespace Piccolo
 
                 Vector3 vertex[3];
                 Vector3 normal[3];
-                Vector2 uv[3];
+                FVector2 uv[3];
 
                 // only deals with triangle faces
                 if (fv != 3)
@@ -249,8 +249,8 @@ namespace Piccolo
                         auto tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
                         auto ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
 
-                        uv[v].x = static_cast<float>(tx);
-                        uv[v].y = static_cast<float>(ty);
+                        uv[v][0] = static_cast<float>(tx);
+                        uv[v][1] = static_cast<float>(ty);
                     }
                     else
                     {
@@ -270,28 +270,28 @@ namespace Piccolo
 
                 if (!with_texcoord)
                 {
-                    uv[0] = Vector2(0.5f, 0.5f);
-                    uv[1] = Vector2(0.5f, 0.5f);
-                    uv[2] = Vector2(0.5f, 0.5f);
+                    uv[0] = FVector2(0.5f, 0.5f);
+                    uv[1] = FVector2(0.5f, 0.5f);
+                    uv[2] = FVector2(0.5f, 0.5f);
                 }
 
                 Vector3 tangent {1, 0, 0};
                 {
                     Vector3 edge1    = vertex[1] - vertex[0];
                     Vector3 edge2    = vertex[2] - vertex[1];
-                    Vector2 deltaUV1 = uv[1] - uv[0];
-                    Vector2 deltaUV2 = uv[2] - uv[1];
+                    FVector2 deltaUV1 = uv[1] - uv[0];
+                    FVector2 deltaUV2 = uv[2] - uv[1];
 
-                    auto divide = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+                    auto divide = deltaUV1[0] * deltaUV2[1] - deltaUV2[0] * deltaUV1[1];
                     if (divide >= 0.0f && divide < 0.000001f)
                         divide = 0.000001f;
                     else if (divide < 0.0f && divide > -0.000001f)
                         divide = -0.000001f;
 
                     float df  = 1.0f / divide;
-                    tangent.x = df * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-                    tangent.y = df * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-                    tangent.z = df * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+                    tangent.x = df * (deltaUV2[1] * edge1.x - deltaUV1[1] * edge2.x);
+                    tangent.y = df * (deltaUV2[1] * edge1.y - deltaUV1[1] * edge2.y);
+                    tangent.z = df * (deltaUV2[1] * edge1.z - deltaUV1[1] * edge2.z);
                     tangent   = (tangent).normalisedCopy();
                 }
 
@@ -307,8 +307,8 @@ namespace Piccolo
                     mesh_vert.ny = normal[i].y;
                     mesh_vert.nz = normal[i].z;
 
-                    mesh_vert.u = uv[i].x;
-                    mesh_vert.v = uv[i].y;
+                    mesh_vert.u = uv[i][0];
+                    mesh_vert.v = uv[i][1];
 
                     mesh_vert.tx = tangent.x;
                     mesh_vert.ty = tangent.y;

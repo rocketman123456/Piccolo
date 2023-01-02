@@ -673,7 +673,7 @@ namespace Piccolo
             glfwGetWindowContentScale(g_editor_global_context.m_window_system->getWindow(), &x_scale, &y_scale);
             float indent_scale = fmaxf(1.0f, fmaxf(x_scale, y_scale));
 #endif
-            indent_val = g_editor_global_context.m_input_manager->getEngineWindowSize().x - 100.0f * indent_scale;
+            indent_val = g_editor_global_context.m_input_manager->getEngineWindowSize()[0] - 100.0f * indent_scale;
 
             ImGui::Indent(indent_val);
             if (g_is_editor_mode)
@@ -752,8 +752,8 @@ namespace Piccolo
             g_runtime_global_context.m_render_system->updateEngineContentViewport(
                 render_target_window_pos.x, render_target_window_pos.y, render_target_window_size.x, render_target_window_size.y);
 #endif
-            g_editor_global_context.m_input_manager->setEngineWindowPos(render_target_window_pos);
-            g_editor_global_context.m_input_manager->setEngineWindowSize(render_target_window_size);
+            g_editor_global_context.m_input_manager->setEngineWindowPos({render_target_window_pos.x, render_target_window_pos.y});
+            g_editor_global_context.m_input_manager->setEngineWindowSize({render_target_window_size.x, render_target_window_size.y});
         }
 
         ImGui::End();

@@ -28,7 +28,7 @@ namespace Piccolo
         void tick(float delta_time);
 
     public:
-        size_t                 updateCursorOnAxis(Vector2 cursor_uv, Vector2 game_engine_window_size);
+        size_t                 updateCursorOnAxis(FVector2 cursor_uv, FVector2 game_engine_window_size);
         void                   drawSelectedEntityAxis();
         std::weak_ptr<GObject> getSelectedGObject() const;
         RenderEntity*          getAxisMeshByType(EditorAxisMode axis_mode);
@@ -38,8 +38,8 @@ namespace Piccolo
                                           float     new_mouse_pos_y,
                                           float     last_mouse_pos_x,
                                           float     last_mouse_pos_y,
-                                          Vector2   engine_window_pos,
-                                          Vector2   engine_window_size,
+                                          FVector2  engine_window_pos,
+                                          FVector2  engine_window_size,
                                           size_t    cursor_on_axis,
                                           Matrix4x4 model_matrix);
 

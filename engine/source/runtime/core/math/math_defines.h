@@ -38,5 +38,21 @@ namespace Piccolo
     using FAffine = Eigen::Affine3f;
     using DAffine = Eigen::Affine3d;
 
-    using FTransform = Eigen::Transform;
+    using FIsometry2 = Eigen::Isometry2f;
+    using FIsometry3 = Eigen::Isometry3f;
+
+    using DIsometry2 = Eigen::Isometry2d;
+    using DIsometry3 = Eigen::Isometry3d;
+
+    using FProjective2 = Eigen::Projective2f;
+    using FProjective3 = Eigen::Projective3f;
+
+    using DProjective2 = Eigen::Projective2d;
+    using DProjective3 = Eigen::Projective3d;
+
+    using FTransform2 = FMatrix3;
+    using FTransform3 = FMatrix4;
+
+    using DTransform2 = DMatrix3;
+    using DTransform3 = DMatrix4;
 } // namespace Piccolo
