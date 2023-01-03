@@ -101,17 +101,17 @@ namespace Piccolo
             if (bones[bone_index].getParent() == nullptr || bone_index == 1)
                 continue;
 
-            Matrix4x4 bone_matrix =
+            FMatrix4 bone_matrix =
                 Transform(bones[bone_index]._getDerivedPosition(), bones[bone_index]._getDerivedOrientation(), bones[bone_index]._getDerivedScale())
                     .getMatrix();
-            Vector4 bone_position(0.0f, 0.0f, 0.0f, 1.0f);
+            FVector4 bone_position(0.0f, 0.0f, 0.0f, 1.0f);
             bone_position = object_matrix * bone_matrix * bone_position;
             bone_position /= bone_position[3];
 
             Node*     parent_bone = bones[bone_index].getParent();
-            Matrix4x4 parent_bone_matrix =
+            FMatrix4 parent_bone_matrix =
                 Transform(parent_bone->_getDerivedPosition(), parent_bone->_getDerivedOrientation(), parent_bone->_getDerivedScale()).getMatrix();
-            Vector4 parent_bone_position(0.0f, 0.0f, 0.0f, 1.0f);
+            FVector4 parent_bone_position(0.0f, 0.0f, 0.0f, 1.0f);
             parent_bone_position = object_matrix * parent_bone_matrix * parent_bone_position;
             parent_bone_position /= parent_bone_position[3];
 
@@ -146,10 +146,10 @@ namespace Piccolo
             if (bones[bone_index].getParent() == nullptr || bone_index == 1)
                 continue;
 
-            Matrix4x4 bone_matrix =
+            FMatrix4 bone_matrix =
                 Transform(bones[bone_index]._getDerivedPosition(), bones[bone_index]._getDerivedOrientation(), bones[bone_index]._getDerivedScale())
                     .getMatrix();
-            Vector4 bone_position(0.0f, 0.0f, 0.0f, 1.0f);
+            FVector4 bone_position(0.0f, 0.0f, 0.0f, 1.0f);
             bone_position = object_matrix * bone_matrix * bone_position;
             bone_position /= bone_position[3];
 
@@ -170,8 +170,8 @@ namespace Piccolo
         {
             AxisAlignedBox  bounding_box     = bounding_boxes[bounding_box_index];
             DebugDrawGroup* debug_draw_group = g_runtime_global_context.m_debugdraw_manager->tryGetOrCreateDebugDrawGroup("bounding box");
-            Vector3         center           = Vector3(bounding_box.getCenter().x, bounding_box.getCenter().y, bounding_box.getCenter().z);
-            Vector3         halfExtent       = Vector3(bounding_box.getHalfExtent().x, bounding_box.getHalfExtent().y, bounding_box.getHalfExtent().z);
+            Vector3         center           = Vector3(bounding_box.getCenter()[0], bounding_box.getCenter()[1], bounding_box.getCenter()[2]);
+            Vector3         halfExtent       = Vector3(bounding_box.getHalfExtent()[0], bounding_box.getHalfExtent()[1], bounding_box.getHalfExtent()[2]);
 
             debug_draw_group->addBox(center, halfExtent, Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
         }
@@ -204,9 +204,9 @@ namespace Piccolo
         }
         buffer << std::endl;
 
-        Vector3 position  = camera_component->getPosition();
-        Vector3 forward   = camera_component->getForward();
-        Vector3 direction = forward - position;
+        FVector3 position  = camera_component->getPosition();
+        FVector3 forward   = camera_component->getForward();
+        FVector3 direction = forward - position;
         buffer << "camera position: (" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
         buffer << "camera direction : (" << direction.x << "," << direction.y << "," << direction.z << ")";
         debug_draw_group->addText(buffer.str(), Vector4(1.0f, 0.0f, 0.0f, 1.0f), Vector3(-1.0f, -0.2f, 0.0f), 10, true);

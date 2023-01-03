@@ -55,4 +55,14 @@ namespace Piccolo
 
     using DTransform2 = DMatrix3;
     using DTransform3 = DMatrix4;
+
+    const FVector3 UNIT_X_3 = FVector3(1, 0, 0);
+    const FVector3 UNIT_Y_3 = FVector3(0, 1, 0);
+    const FVector3 UNIT_Z_3 = FVector3(0, 0, 1);
+
+    const FVector3 NEGATIVE_UNIT_X_3 = FVector3(-1, 0., 0.);
+    const FVector3 NEGATIVE_UNIT_Y_3 = FVector3(0., -1, 0.);
+    const FVector3 NEGATIVE_UNIT_Z_3 = FVector3(0., 0., -1);
+
+    const FVector4 UNIT_SCALE = FVector4(1, 1, 1, 1);
 } // namespace Piccolo
