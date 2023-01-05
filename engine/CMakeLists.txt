@@ -28,6 +28,8 @@ endif()
 
 set(glslang_include ${THIRD_PARTY_DIR}/glslang-sdk)
 
+set(eigen_include ${THIRD_PARTY_DIR}/eigen)
+
 set(vulkan_include ${THIRD_PARTY_DIR}/VulkanSDK/include)
 
 if(WIN32)

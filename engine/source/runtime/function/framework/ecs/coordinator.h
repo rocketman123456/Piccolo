@@ -12,6 +12,7 @@ namespace Piccolo
     {
     public:
         void init();
+        void clear();
 
         // Entity methods
         Entity createEntity();
@@ -78,4 +79,6 @@ namespace Piccolo
         std::unique_ptr<EntityManager>    m_entity_manager;
         std::unique_ptr<SystemManager>    m_system_manager;
     };
+
+    extern Coordinator g_coordinator;
 } // namespace Piccolo

@@ -47,8 +47,6 @@ namespace Piccolo
         std::shared_ptr<PhysicsScene> physics_scene = g_runtime_global_context.m_world_manager->getCurrentActivePhysicsScene().lock();
         ASSERT(physics_scene);
 
-        std::vector<PhysicsHitInfo> hits;
-
         if(displacement.length() > 0.01)
         {
             Transform transform = m_rigidbody_shape.m_global_transform;
@@ -64,12 +62,11 @@ namespace Piccolo
 
         Vector3 final_position = current_position;
 
+        std::vector<PhysicsHitInfo> hits;
         m_is_touch_ground = physics_scene->sweep(m_rigidbody_shape, world_transform.getMatrix(), Vector3::NEGATIVE_UNIT_Z, 0.105f, hits);
-
-        hits.clear();
-
         world_transform.m_position -= 0.1f * Vector3::UNIT_Z;
 
+        hits.clear();
         // vertical pass
         if (physics_scene->sweep(m_rigidbody_shape, world_transform.getMatrix(), vertical_direction, vertical_displacement.length(), hits))
         {
@@ -81,7 +78,6 @@ namespace Piccolo
         }
 
         hits.clear();
-
         if (physics_scene->sweep(m_rigidbody_shape, world_transform.getMatrix(), horizontal_direction, horizontal_direction.length(), hits))
         {
             for (auto hit : hits)

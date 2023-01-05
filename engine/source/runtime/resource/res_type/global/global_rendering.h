@@ -52,11 +52,17 @@ namespace Piccolo
         REFLECTION_BODY(GlobalRenderingRes);
 
     public:
-        bool                m_enable_fxaa {false};
+        META(Disable)
         SkyBoxIrradianceMap m_skybox_irradiance_map;
-        SkyBoxSpecularMap   m_skybox_specular_map;
-        std::string         m_brdf_map;
-        std::string         m_color_grading_map;
+        META(Disable)
+        SkyBoxSpecularMap m_skybox_specular_map;
+
+        bool m_enable_fxaa {false};
+
+        std::string m_skybox_irradiance_map_url;
+        std::string m_skybox_specular_map_url;
+        std::string m_brdf_map;
+        std::string m_color_grading_map;
 
         Color            m_sky_color;
         Color            m_ambient_light;

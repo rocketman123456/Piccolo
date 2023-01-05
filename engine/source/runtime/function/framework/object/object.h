@@ -45,7 +45,6 @@ namespace Piccolo
                     return static_cast<TComponent*>(component.operator->());
                 }
             }
-
             return nullptr;
         }
 

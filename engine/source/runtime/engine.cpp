@@ -12,6 +12,8 @@
 #include "runtime/function/render/render_system.h"
 #include "runtime/function/render/window_system.h"
 
+#include "runtime/function/framework/ecs/coordinator.h"
+
 namespace Piccolo
 {
     bool                            g_is_editor_mode {false};
@@ -35,8 +37,8 @@ namespace Piccolo
         Reflection::TypeMetaRegister::metaUnregister();
     }
 
-    void PiccoloEngine::initialize() {}
-    void PiccoloEngine::clear() {}
+    void PiccoloEngine::initialize() { g_coordinator.init(); }
+    void PiccoloEngine::clear() { g_coordinator.clear(); }
 
     void PiccoloEngine::run()
     {

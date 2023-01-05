@@ -42,6 +42,8 @@ namespace Piccolo
         GlobalRenderingRes global_rendering_res;
         const std::string& global_rendering_res_url = config_manager->getGlobalRenderingResUrl();
         asset_manager->loadAsset(global_rendering_res_url, global_rendering_res);
+        asset_manager->loadAsset(global_rendering_res.m_skybox_irradiance_map_url, global_rendering_res.m_skybox_irradiance_map);
+        asset_manager->loadAsset(global_rendering_res.m_skybox_specular_map_url, global_rendering_res.m_skybox_specular_map);
 
         // upload ibl, color grading textures
         LevelResourceDesc level_resource_desc;
