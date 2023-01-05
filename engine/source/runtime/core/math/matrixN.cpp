@@ -1,4 +1,4 @@
-#include "runtime/core/math"
+#include "runtime/core/math/matrixN.h"
 
 namespace Piccolo
 {

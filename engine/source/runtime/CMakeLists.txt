@@ -4,11 +4,6 @@ set(TARGET_NAME PiccoloRuntime)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(JSON_INCLUDE ${THIRD_PARTY_DIR}/json11)
-
-add_library(json11 ${JSON_INCLUDE}/json11.cpp)
-set_target_properties(json11 PROPERTIES FOLDER "ThirdParty/json11")
-
 # ---- Add source files ----
 
 # Note: globbing sources is considered bad practice as CMake's generators may not detect new files
@@ -32,6 +27,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_F
 # target: add_library(${TARGET_NAME} INTERFACE)
 add_library(${TARGET_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
+target_compile_options(${TARGET_NAME} PRIVATE "-O2")
+
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17)
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine")
 
@@ -49,7 +46,9 @@ target_link_libraries(${TARGET_NAME} PUBLIC lua_static sol2)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
 target_link_libraries(${TARGET_NAME} PUBLIC glslang SPIRV glslang-default-resource-limits)
 target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
-# target_link_libraries(${TARGET_NAME} PUBLIC eigen)
+target_link_libraries(${TARGET_NAME} PUBLIC eigen)
+# target_link_libraries(${TARGET_NAME} PUBLIC miniaudio)
+target_link_libraries(${TARGET_NAME} PUBLIC soloud)
 
 if(ENABLE_PHYSICS_DEBUG_RENDERER)
   add_compile_definitions(ENABLE_PHYSICS_DEBUG_RENDERER)
