@@ -1,6 +1,7 @@
 #pragma once
 
 #include "runtime/core/math/random.h"
+#include "runtime/core/math/math_defines.h"
 
 #include <algorithm>
 #include <cmath>
@@ -31,9 +32,9 @@ namespace Piccolo
     class Vector2;
     class Vector3;
     class Vector4;
-    class Matrix3x3;
-    class Matrix4x4;
-    class Quaternion;
+    // class Matrix3x3;
+    // class Matrix4x4;
+    // class Quaternion;
 
     class Radian
     {
@@ -255,15 +256,15 @@ namespace Piccolo
             return std::min({A, B, C});
         }
 
-        static Matrix4x4 makeViewMatrix(const Vector3& position, const Quaternion& orientation, const Matrix4x4* reflect_matrix = nullptr);
+        static FMatrix4 makeViewMatrix(const FVector3& position, const FQuaternion& orientation, const FMatrix4* reflect_matrix = nullptr);
 
-        static Matrix4x4 makeLookAtMatrix(const Vector3& eye_position, const Vector3& target_position, const Vector3& up_dir);
+        static FMatrix4 makeLookAtMatrix(const FVector3& eye_position, const FVector3& target_position, const FVector3& up_dir);
 
-        static Matrix4x4 makePerspectiveMatrix(Radian fovy, float aspect, float znear, float zfar);
+        static FMatrix4 makePerspectiveMatrix(Radian fovy, float aspect, float znear, float zfar);
 
-        static Matrix4x4 makeOrthographicProjectionMatrix(float left, float right, float bottom, float top, float znear, float zfar);
+        static FMatrix4 makeOrthographicProjectionMatrix(float left, float right, float bottom, float top, float znear, float zfar);
 
-        static Matrix4x4 makeOrthographicProjectionMatrix01(float left, float right, float bottom, float top, float znear, float zfar);
+        static FMatrix4 makeOrthographicProjectionMatrix01(float left, float right, float bottom, float top, float znear, float zfar);
     };
 
     // these functions could not be defined within the class definition of class

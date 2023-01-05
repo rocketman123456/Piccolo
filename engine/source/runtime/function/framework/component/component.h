@@ -21,6 +21,9 @@ namespace Piccolo
         // Instantiating the component after definition loaded
         virtual void postLoadResource(std::weak_ptr<GObject> parent_object) { m_parent_object = parent_object; }
 
+        // before save, should collect required data
+        virtual void collectData() {}
+
         virtual void tick(float delta_time) {};
 
         bool isDirty() const { return m_is_dirty; }

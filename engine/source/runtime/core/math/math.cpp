@@ -71,9 +71,9 @@ namespace Piccolo
         return Radian(-Math_HALF_PI);
     }
 
-    Matrix4x4 Math::makeViewMatrix(const Vector3& position, const Quaternion& orientation, const Matrix4x4* reflect_matrix)
+    FMatrix4 Math::makeViewMatrix(const FVector3& position, const FQuaternion& orientation, const FMatrix4* reflect_matrix)
     {
-        Matrix4x4 viewMatrix;
+        FMatrix4 viewMatrix;
 
         // View matrix is:
         //
@@ -85,19 +85,16 @@ namespace Piccolo
         // Where T = -(Transposed(Rot) * Pos)
 
         // This is most efficiently done using 3x3 Matrices
-        Matrix3x3 rot;
-        orientation.toRotationMatrix(rot);
+        FMatrix3 rot = orientation.matrix();
 
         // Make the translation relative to new axes
-        Matrix3x3 rotT  = rot.transpose();
-        Vector3   trans = -rotT * position;
+        FMatrix3 rotT  = rot.transpose();
+        FVector3 trans = -rotT * position;
 
         // Make final matrix
-        viewMatrix = Matrix4x4::IDENTITY;
-        viewMatrix.setMatrix3x3(rotT); // fills upper 3x3
-        viewMatrix[0][3] = trans.x;
-        viewMatrix[1][3] = trans.y;
-        viewMatrix[2][3] = trans.z;
+        viewMatrix = FMatrix4::Identity();
+        viewMatrix.block<3, 3>(0, 0) = rotT; // fills upper 3x3
+        viewMatrix.block<3, 1>(0, 3) = trans;
 
         // Deal with reflections
         if (reflect_matrix)
@@ -108,46 +105,39 @@ namespace Piccolo
         return viewMatrix;
     }
 
-    Matrix4x4 Math::makeLookAtMatrix(const Vector3& eye_position, const Vector3& target_position, const Vector3& up_dir)
+    FMatrix4 Math::makeLookAtMatrix(const FVector3& eye_position, const FVector3& target_position, const FVector3& up_dir)
     {
-        const Vector3& up = up_dir.normalisedCopy();
+        const FVector3& up = up_dir.normalized();
 
-        Vector3 f = (target_position - eye_position).normalisedCopy();
-        Vector3 s = f.crossProduct(up).normalisedCopy();
-        Vector3 u = s.crossProduct(f);
+        FVector3 f = (target_position - eye_position).normalized();
+        FVector3 s = f.cross(up).normalized();
+        FVector3 u = s.cross(f);
 
-        Matrix4x4 view_mat = Matrix4x4::IDENTITY;
-
-        view_mat[0][0] = s.x;
-        view_mat[0][1] = s.y;
-        view_mat[0][2] = s.z;
-        view_mat[0][3] = -s.dotProduct(eye_position);
-        view_mat[1][0] = u.x;
-        view_mat[1][1] = u.y;
-        view_mat[1][2] = u.z;
-        view_mat[1][3] = -u.dotProduct(eye_position);
-        view_mat[2][0] = -f.x;
-        view_mat[2][1] = -f.y;
-        view_mat[2][2] = -f.z;
-        view_mat[2][3] = f.dotProduct(eye_position);
+        FMatrix4 view_mat = FMatrix4::Identity();
+        view_mat.block<3, 1>(0, 0) = s;
+        view_mat(0, 3)    = -s.dot(eye_position);
+        view_mat.block<3, 1>(1, 0) = u;
+        view_mat(1, 3)    = -u.dot(eye_position);
+        view_mat.block<3, 1>(2, 0) = -f;
+        view_mat(2, 3)    = f.dot(eye_position);
         return view_mat;
     }
 
-    Matrix4x4 Math::makePerspectiveMatrix(Radian fovy, float aspect, float znear, float zfar)
+    FMatrix4 Math::makePerspectiveMatrix(Radian fovy, float aspect, float znear, float zfar)
     {
         float tan_half_fovy = Math::tan(fovy / 2.f);
 
-        Matrix4x4 ret = Matrix4x4::ZERO;
-        ret[0][0]     = 1.f / (aspect * tan_half_fovy);
-        ret[1][1]     = 1.f / tan_half_fovy;
-        ret[2][2]     = zfar / (znear - zfar);
-        ret[3][2]     = -1.f;
-        ret[2][3]     = -(zfar * znear) / (zfar - znear);
+        FMatrix4 ret = FMatrix4::Zero();
+        ret(0, 0)    = 1.f / (aspect * tan_half_fovy);
+        ret(1, 1)    = 1.f / tan_half_fovy;
+        ret(2, 2)    = zfar / (znear - zfar);
+        ret(3, 2)    = -1.f;
+        ret(2, 3)    = -(zfar * znear) / (zfar - znear);
 
         return ret;
     }
 
-    Matrix4x4 Math::makeOrthographicProjectionMatrix(float left, float right, float bottom, float top, float znear, float zfar)
+    FMatrix4 Math::makeOrthographicProjectionMatrix(float left, float right, float bottom, float top, float znear, float zfar)
     {
         float inv_width    = 1.0f / (right - left);
         float inv_height   = 1.0f / (top - bottom);
@@ -175,19 +165,19 @@ namespace Piccolo
         // q = - 2 / (far - near)
         // qn = - (far + near) / (far - near)
 
-        Matrix4x4 proj_matrix = Matrix4x4::ZERO;
-        proj_matrix[0][0]     = A;
-        proj_matrix[0][3]     = C;
-        proj_matrix[1][1]     = B;
-        proj_matrix[1][3]     = D;
-        proj_matrix[2][2]     = q;
-        proj_matrix[2][3]     = qn;
-        proj_matrix[3][3]     = 1;
+        FMatrix4 proj_matrix = FMatrix4::Zero();
+        proj_matrix(0, 0)    = A;
+        proj_matrix(0, 3)    = C;
+        proj_matrix(1, 1)    = B;
+        proj_matrix(1, 3)    = D;
+        proj_matrix(2, 2)    = q;
+        proj_matrix(2, 3)    = qn;
+        proj_matrix(3, 3)    = 1;
 
         return proj_matrix;
     }
 
-    Matrix4x4 Math::makeOrthographicProjectionMatrix01(float left, float right, float bottom, float top, float znear, float zfar)
+    FMatrix4 Math::makeOrthographicProjectionMatrix01(float left, float right, float bottom, float top, float znear, float zfar)
     {
         float inv_width    = 1.0f / (right - left);
         float inv_height   = 1.0f / (top - bottom);
@@ -215,14 +205,14 @@ namespace Piccolo
         // q = - 1 / (far - near)
         // qn = - near / (far - near)
 
-        Matrix4x4 proj_matrix = Matrix4x4::ZERO;
-        proj_matrix[0][0]     = A;
-        proj_matrix[0][3]     = C;
-        proj_matrix[1][1]     = B;
-        proj_matrix[1][3]     = D;
-        proj_matrix[2][2]     = q;
-        proj_matrix[2][3]     = qn;
-        proj_matrix[3][3]     = 1;
+        FMatrix4 proj_matrix = FMatrix4::Zero();
+        proj_matrix(0, 0)    = A;
+        proj_matrix(0, 3)    = C;
+        proj_matrix(1, 1)    = B;
+        proj_matrix(1, 3)    = D;
+        proj_matrix(2, 2)    = q;
+        proj_matrix(2, 3)    = qn;
+        proj_matrix(3, 3)    = 1;
 
         return proj_matrix;
     }

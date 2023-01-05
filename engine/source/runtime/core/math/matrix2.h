@@ -19,7 +19,13 @@ namespace Piccolo
         float v2 {0};
         float v3 {1.f};
 
-        META(Disable)
-        FMatrix2 data;
+        Matrix2x2() = default;
+        Matrix2x2(const float(&float_array)[4]);
+
+        FMatrix2 toFMatrix2() const;
+        void     fromFMatrix2(const FMatrix2& v);
+
+        static const Matrix2x2 ZERO;
+        static const Matrix2x2 IDENTITY;
     };
-}
+} // namespace Piccolo

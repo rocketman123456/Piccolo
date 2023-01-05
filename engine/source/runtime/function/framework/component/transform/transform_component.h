@@ -41,8 +41,8 @@ namespace Piccolo
         META(Enable)
         Transform m_transform;
 
-        Transform m_transform_buffer[2];
-        size_t    m_current_index {0};
-        size_t    m_next_index {1};
+        FTransform3 m_transform_buffer[2];
+        size_t      m_current_index {0};
+        size_t      m_next_index {1};
     };
 } // namespace Piccolo

@@ -40,7 +40,7 @@ namespace Piccolo
         /// Pointer accessor for direct copying
         const float* ptr() const { return &x; }
 
-        FVector4 toFVector4()
+        FVector4 toFVector4() const
         {
             FVector4 data(x, y, z, w);
             return data;

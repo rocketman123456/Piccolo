@@ -46,7 +46,7 @@ namespace Piccolo
             return (i == 0 ? x : y);
         }
 
-        FVector2 toFVector2()
+        FVector2 toFVector2() const
         {
             FVector2 data(x, y);
             return data;

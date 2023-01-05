@@ -89,7 +89,7 @@ namespace Piccolo
         for (auto loaded_component : definition_res.m_components)
         {
             const std::string type_name = loaded_component.getTypeName();
-            // don't create component if it has been instanced -- FIXME
+            // FIXME don't create component if it has been instanced
             if (hasComponent(type_name))
                 continue;
 
@@ -103,9 +103,13 @@ namespace Piccolo
 
     void GObject::save(ObjectInstanceRes& out_object_instance_res)
     {
+        for (auto& component : m_components)
+        {
+            component->collectData();
+        }
+
         out_object_instance_res.m_name       = m_name;
         out_object_instance_res.m_definition = m_definition_url;
-
         out_object_instance_res.m_instanced_components = m_components;
     }
 

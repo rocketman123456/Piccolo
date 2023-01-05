@@ -46,7 +46,7 @@ namespace Piccolo
         float*       ptr() { return &x; }
         const float* ptr() const { return &x; }
 
-        FVector3 toFVector3()
+        FVector3 toFVector3() const
         {
             FVector3 data(x, y, z);
             return data;

@@ -17,6 +17,11 @@ namespace Piccolo
         void merge(const FVector3& new_point);
         void update(const FVector3& center, const FVector3& half_extent);
 
+        // only need to convert after initialization and before save
+        void copyDataToFVector();
+        void copyDataToVector();
+        void collectData() { copyDataToVector(); }
+
         const FVector3& getCenter() const { return m_center_; }
         const FVector3& getHalfExtent() const { return m_half_extent_; }
         const FVector3& getMinCorner() const { return m_min_corner_; }
@@ -33,7 +38,6 @@ namespace Piccolo
         FVector3 m_center_;
         META(Disable)
         FVector3 m_half_extent_;
-
         META(Disable)
         FVector3 m_min_corner_;
         META(Disable)
