@@ -14,13 +14,6 @@ file(GLOB_RECURSE SOURCE_FILES "*.cpp")
 # source_group(TREE "${ENGINE_ROOT_DIR}/schema" FILES ${SCHEMA_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES})
 
-# if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/schema/)
-# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/schema/" DESTINATION "${CMAKE_BINARY_DIR}/schema")
-# endif()
-
-# if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/asset/)
-# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/asset/" DESTINATION "${CMAKE_BINARY_DIR}/asset")
-# endif()
 # ---- Create library ----
 
 # Note: for header-only libraries change all PUBLIC flags to INTERFACE and create an interface
@@ -80,7 +73,7 @@ target_include_directories(
 
 target_include_directories(
   ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${JSON_INCLUDE}>
+  PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/json11>
 )
 
 target_include_directories(

@@ -27,9 +27,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 set(glslang_include ${THIRD_PARTY_DIR}/glslang-sdk)
-
 set(eigen_include ${THIRD_PARTY_DIR}/eigen)
-
 set(vulkan_include ${THIRD_PARTY_DIR}/VulkanSDK/include)
 
 if(WIN32)
@@ -51,6 +49,21 @@ else()
   message(FATAL_ERROR "Unknown Platform")
 endif()
 
+# if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/asset/)
+# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/asset/" DESTINATION "${CMAKE_BINARY_DIR}/asset")
+# endif()
+
+# if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shader/glsl/)
+# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/shader/glsl/" DESTINATION "${CMAKE_BINARY_DIR}/shader/glsl/")
+# endif()
+
+# if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shader/include/)
+# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/shader/include/" DESTINATION "${CMAKE_BINARY_DIR}/shader/include/")
+# endif()
+
+# if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/template/)
+# file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/template/" DESTINATION "${CMAKE_BINARY_DIR}/template")
+# endif()
 
 set(SHADER_COMPILE_TARGET PiccoloShaderCompile)
 add_subdirectory(shader)
