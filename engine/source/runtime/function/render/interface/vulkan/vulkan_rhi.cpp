@@ -594,6 +594,7 @@ namespace Piccolo
 
 #if defined(__MACH__)
         extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+        extensions.push_back("VK_KHR_portability_enumeration");
 #endif
 
         return extensions;
@@ -645,6 +646,10 @@ namespace Piccolo
         auto extensions                              = getRequiredExtensions();
         instance_create_info.enabledExtensionCount   = static_cast<uint32_t>(extensions.size());
         instance_create_info.ppEnabledExtensionNames = extensions.data();
+
+#if defined(__MACH__)
+        instance_create_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
         LOG_DEBUG("Vulkan RHI available extensions: ");
         for (auto extension : extensions)

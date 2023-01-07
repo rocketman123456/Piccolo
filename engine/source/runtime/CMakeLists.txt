@@ -30,18 +30,51 @@ target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/WX->")
 
 # Link dependencies
-target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
-target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb)
-target_link_libraries(${TARGET_NAME} PUBLIC glfw)
+# target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
+# target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb)
+# target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC imgui)
-target_link_libraries(${TARGET_NAME} PUBLIC Jolt)
-target_link_libraries(${TARGET_NAME} PUBLIC lua_static sol2)
+# target_link_libraries(${TARGET_NAME} PUBLIC Jolt)
+# target_link_libraries(${TARGET_NAME} PUBLIC lua_static sol2)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
-target_link_libraries(${TARGET_NAME} PUBLIC glslang SPIRV glslang-default-resource-limits)
-target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
-target_link_libraries(${TARGET_NAME} PUBLIC eigen)
+# target_link_libraries(${TARGET_NAME} PUBLIC glslang SPIRV glslang-default-resource-limits)
+# target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
+# target_link_libraries(${TARGET_NAME} PUBLIC eigen)
 # target_link_libraries(${TARGET_NAME} PUBLIC miniaudio)
 target_link_libraries(${TARGET_NAME} PUBLIC soloud)
+# target_link_libraries(${TARGET_NAME} PUBLIC json11)
+
+target_link_libraries(${TARGET_NAME} PUBLIC Eigen3::Eigen)
+target_link_libraries(${TARGET_NAME} PUBLIC fmt::fmt)
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog spdlog::spdlog_header_only)
+# target_link_libraries(${TARGET_NAME} PUBLIC volk::volk volk::volk_headers)
+target_link_libraries(${TARGET_NAME} PUBLIC glfw)
+target_link_libraries(${TARGET_NAME} PUBLIC tinyobjloader::tinyobjloader)
+target_link_libraries(${TARGET_NAME} PUBLIC sol2)
+target_link_libraries(${TARGET_NAME} PUBLIC ${LUA_LIBRARIES})
+target_link_libraries(${TARGET_NAME} PRIVATE json11)
+target_link_libraries(${TARGET_NAME} PUBLIC Jolt)
+target_link_libraries(${TARGET_NAME} PRIVATE unofficial::vulkan-memory-allocator::vulkan-memory-allocator)
+target_link_libraries(${TARGET_NAME} PUBLIC 
+  glslang::OSDependent 
+  glslang::glslang 
+  glslang::MachineIndependent 
+  glslang::GenericCodeGen 
+  glslang::OGLCompiler 
+  # glslang::glslangValidator 
+  # glslang::spirv-remap 
+  glslang::glslang-default-resource-limits 
+  glslang::SPVRemapper 
+  glslang::SPIRV 
+  glslang::HLSL
+)
+
+target_link_directories(${TARGET_NAME} PUBLIC "$<IF:$<CONFIG:Debug>,${JSON11_LIB_DEBUG_DIRS},${JSON11_LIB_DIRS}>")
+target_link_directories(${TARGET_NAME} PUBLIC "$<IF:$<CONFIG:Debug>,${JOLTPHYSICS_LIB_DEBUG_DIRS},${JOLTPHYSICS_LIB_DIRS}>")
+
+target_include_directories(${TARGET_NAME} PRIVATE ${STB_INCLUDE_DIRS})
+target_include_directories(${TARGET_NAME} PRIVATE ${TINYGLTF_INCLUDE_DIRS})
+target_include_directories(${TARGET_NAME} PRIVATE ${LUA_INCLUDE_DIR})
 
 if(ENABLE_PHYSICS_DEBUG_RENDERER)
   add_compile_definitions(ENABLE_PHYSICS_DEBUG_RENDERER)
@@ -52,13 +85,13 @@ target_include_directories(
   ${TARGET_NAME}
   PUBLIC $<BUILD_INTERFACE:${vulkan_include}>)
 
-target_include_directories(
-  ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${eigen_include}>)
+# target_include_directories(
+#   ${TARGET_NAME}
+#   PUBLIC $<BUILD_INTERFACE:${eigen_include}>)
 
-target_include_directories(
-  ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${glslang_include}>)
+# target_include_directories(
+#   ${TARGET_NAME}
+#   PUBLIC $<BUILD_INTERFACE:${glslang_include}>)
 
 add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET})
 target_include_directories(
@@ -71,15 +104,15 @@ target_include_directories(
   $<INSTALL_INTERFACE:include/${TARGET_NAME}-${PROJECT_VERSION}>
 )
 
-target_include_directories(
-  ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/json11>
-)
+# target_include_directories(
+#   ${TARGET_NAME}
+#   PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/json11>
+# )
 
-target_include_directories(
-  ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/vulkanmemoryallocator/include>
-)
+# target_include_directories(
+#   ${TARGET_NAME}
+#   PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/vulkanmemoryallocator/include>
+# )
 
 target_include_directories(
   ${TARGET_NAME}

@@ -5,27 +5,30 @@
 #include "runtime/resource/asset_manager/asset_manager.h"
 #include "runtime/resource/config_manager/config_manager.h"
 
-#include <SPIRV/GLSL.ext.EXT.h>
-#include <SPIRV/GLSL.ext.KHR.h>
-#include <SPIRV/GLSL.std.450.h>
-#include <SPIRV/GlslangToSpv.h>
-#include <SPIRV/disassemble.h>
-#include <SPIRV/doc.h>
-#include <StandAlone/DirStackFileIncluder.h>
-#include <StandAlone/ResourceLimits.h>
-#include <StandAlone/Worklist.h>
+#include <glslang/SPIRV/GLSL.ext.EXT.h>
+#include <glslang/SPIRV/GLSL.ext.KHR.h>
+#include <glslang/SPIRV/GLSL.std.450.h>
+#include <glslang/SPIRV/GlslangToSpv.h>
+#include <glslang/SPIRV/disassemble.h>
+#include <glslang/SPIRV/doc.h>
+
+#include <glslang/Include/ResourceLimits.h>
 #include <glslang/Include/ShHandle.h>
+// #include <glslang/Include/glslang_c_interface.h>
+
+#include <glslang/Public/ResourceLimits.h>
 #include <glslang/Public/ShaderLang.h>
 
-#include <glslang/Include/glslang_c_interface.h>
+#include "runtime/function/render/interface/vulkan/dir_stack_file_includer.h"
+// #include "runtime/function/render/interface/vulkan/Worklist.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
-#include <exception>
 
 namespace Piccolo
 {
@@ -49,23 +52,6 @@ namespace Piccolo
     }
 
     int endsWith(const char* s, const char* part) { return (strstr(s, part) - s) == (strlen(s) - strlen(part)); }
-
-    // glslang_stage_t glslangShaderStageFromFileName(const char* fileName)
-    // {
-    //     if (endsWith(fileName, ".vert"))
-    //         return GLSLANG_STAGE_VERTEX;
-    //     if (endsWith(fileName, ".frag"))
-    //         return GLSLANG_STAGE_FRAGMENT;
-    //     if (endsWith(fileName, ".geom"))
-    //         return GLSLANG_STAGE_GEOMETRY;
-    //     if (endsWith(fileName, ".comp"))
-    //         return GLSLANG_STAGE_COMPUTE;
-    //     if (endsWith(fileName, ".tesc"))
-    //         return GLSLANG_STAGE_TESSCONTROL;
-    //     if (endsWith(fileName, ".tese"))
-    //         return GLSLANG_STAGE_TESSEVALUATION;
-    //     return GLSLANG_STAGE_VERTEX;
-    // }
 
     EShLanguage shaderLanguageStageFromFileName(const char* fileName)
     {
@@ -178,17 +164,17 @@ namespace Piccolo
         shader->setEnvClient(client, client_version);
         shader->setEnvTarget(target_language, target_version);
 
-        auto        resources      = glslang::DefaultTBuiltInResource;
-        const int   defaultVersion = 100;
-        std::string str;
-        if (!shader->preprocess(&resources, defaultVersion, ENoProfile, false, false, messages, &str, includer))
+        const TBuiltInResource* resources      = GetDefaultResources();
+        const int               defaultVersion = 100;
+        std::string             str;
+        if (!shader->preprocess(resources, defaultVersion, ENoProfile, false, false, messages, &str, includer))
         {
             LOG_ERROR(shader->getInfoLog());
             LOG_ERROR(shader->getInfoDebugLog());
             throw std::runtime_error(shader->getInfoLog());
         }
 
-        if (!shader->parse(&resources, defaultVersion, false, messages, includer))
+        if (!shader->parse(resources, defaultVersion, false, messages, includer))
         {
             LOG_ERROR(shader->getInfoLog());
             LOG_ERROR(shader->getInfoDebugLog());
