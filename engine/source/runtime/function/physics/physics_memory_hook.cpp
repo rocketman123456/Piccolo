@@ -85,11 +85,13 @@ namespace Piccolo
 {
     void RegisterCustomMemoryHook()
     {
+#if !defined(JPH_DISABLE_CUSTOM_ALLOCATOR)
         JPH::Allocate = AllocateHook;
         JPH::Free = FreeHook;
         JPH::AlignedAllocate = AlignedAllocateHook;
         JPH::AlignedFree = AlignedFreeHook;
         //_CrtSetAllocHook(MyAllocHook);
+#endif
     }
 
     void EnableCustomMemoryHook(bool inEnable)
