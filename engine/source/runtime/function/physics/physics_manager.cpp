@@ -1,4 +1,5 @@
 #include "runtime/function/physics/physics_manager.h"
+#include "runtime/function/physics/physics_memory_hook.h"
 
 #include "runtime/resource/config_manager/config_manager.h"
 
@@ -7,6 +8,8 @@
 #include "runtime/function/physics/jolt/utils.h"
 #include "runtime/function/physics/physics_scene.h"
 #include "runtime/function/render/render_system.h"
+
+#include <Jolt/Core/Memory.h>
 
 #ifdef ENABLE_PHYSICS_DEBUG_RENDERER
 #include "TestFramework.h"
@@ -21,6 +24,9 @@ namespace Piccolo
 {
     void PhysicsManager::initialize()
     {
+        // TODO : add jolt memory allocator
+        JPH::RegisterDefaultAllocator();
+
 #ifdef ENABLE_PHYSICS_DEBUG_RENDERER
         std::shared_ptr<ConfigManager> config_manager = g_runtime_global_context.m_config_manager;
         ASSERT(config_manager);

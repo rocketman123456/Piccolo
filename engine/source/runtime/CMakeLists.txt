@@ -20,8 +20,6 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_F
 # target: add_library(${TARGET_NAME} INTERFACE)
 add_library(${TARGET_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
-target_compile_options(${TARGET_NAME} PRIVATE "-O2")
-
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17)
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine")
 
@@ -29,20 +27,12 @@ set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine")
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 target_compile_options(${TARGET_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/WX->")
 
+# target_compile_definitions(${TARGET_NAME} PUBLIC JPH_DISABLE_CUSTOM_ALLOCATOR)
+
 # Link dependencies
-# target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
-# target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb)
-# target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC imgui)
-# target_link_libraries(${TARGET_NAME} PUBLIC Jolt)
-# target_link_libraries(${TARGET_NAME} PUBLIC lua_static sol2)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
-# target_link_libraries(${TARGET_NAME} PUBLIC glslang SPIRV glslang-default-resource-limits)
-# target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
-# target_link_libraries(${TARGET_NAME} PUBLIC eigen)
-# target_link_libraries(${TARGET_NAME} PUBLIC miniaudio)
 target_link_libraries(${TARGET_NAME} PUBLIC soloud)
-# target_link_libraries(${TARGET_NAME} PUBLIC json11)
 
 target_link_libraries(${TARGET_NAME} PUBLIC Eigen3::Eigen)
 target_link_libraries(${TARGET_NAME} PUBLIC fmt::fmt)
@@ -83,36 +73,21 @@ endif()
 
 target_include_directories(
   ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${vulkan_include}>)
-
-# target_include_directories(
-#   ${TARGET_NAME}
-#   PUBLIC $<BUILD_INTERFACE:${eigen_include}>)
-
-# target_include_directories(
-#   ${TARGET_NAME}
-#   PUBLIC $<BUILD_INTERFACE:${glslang_include}>)
+  PUBLIC $<BUILD_INTERFACE:${vulkan_include}>
+)
 
 add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET})
+
 target_include_directories(
   ${TARGET_NAME}
-  PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/shader/generated/cpp>)
+  PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/shader/generated/cpp>
+)
 
 target_include_directories(
   ${TARGET_NAME}
   PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/source>
   $<INSTALL_INTERFACE:include/${TARGET_NAME}-${PROJECT_VERSION}>
 )
-
-# target_include_directories(
-#   ${TARGET_NAME}
-#   PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/json11>
-# )
-
-# target_include_directories(
-#   ${TARGET_NAME}
-#   PUBLIC $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/vulkanmemoryallocator/include>
-# )
 
 target_include_directories(
   ${TARGET_NAME}
