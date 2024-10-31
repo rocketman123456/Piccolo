@@ -45,7 +45,45 @@ endif()
 # endif()
 
 if(NOT TARGET Jolt)
-    include(jolt.cmake)
+    option(TARGET_HELLO_WORLD "" OFF)
+    option(TARGET_PERFORMANCE_TEST "" OFF)
+    option(TARGET_SAMPLES "" OFF)
+    option(TARGET_UNIT_TESTS "" OFF)
+    option(TARGET_VIEWER "" OFF)
+
+    if(ENABLE_PHYSICS_DEBUG_RENDERER)
+        option(TARGET_TEST_FRAMEWORK "" ON)
+    else()
+        option(TARGET_TEST_FRAMEWORK "" OFF)
+    endif()
+
+    add_subdirectory(JoltPhysics/Build)
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        include(CheckCXXCompilerFlag)
+        check_cxx_compiler_flag("-Wno-unqualified-std-cast-call" COMPILER_CHECK_UNQUALIFIED)
+        if(COMPILER_CHECK_UNQUALIFIED)
+            target_compile_options(Jolt PRIVATE "-Wno-unqualified-std-cast-call")
+        endif()
+    endif()
+
+    if(ENABLE_PHYSICS_DEBUG_RENDERER)
+        set_target_properties(Jolt TestFramework
+            PROPERTIES 
+            FOLDER ${third_party_folder}/JoltPhysics
+            MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+    else()
+        set_target_properties(Jolt
+            PROPERTIES 
+            FOLDER ${third_party_folder}/JoltPhysics
+            MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+    endif()
+
+    if (MSVC)
+        target_compile_options(Jolt PRIVATE "/W4")
+    else()
+        target_compile_options(Jolt PRIVATE "-Wall")
+    endif()
 endif()
 
 # if(NOT TARGET sol2)
